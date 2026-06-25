@@ -30,7 +30,7 @@
                 @mousemove="onHeroMove"
                 @mouseleave="resetHeroParallax"
             >
-                <div class="floating-bg" aria-hidden="true">
+                <div class="floating-bg" :style="floatingBgStyle" aria-hidden="true">
                     <span
                         v-for="item in floatingItems"
                         :key="item.emoji + item.top"
@@ -53,6 +53,7 @@
                             Большой акцент на реальных подарках, красивой упаковке и персональных деталях
                             для тёплых поздравлений.
                         </p>
+                        <a href="#contacts" class="hero-cta">Заказать</a>
                     </div>
 
                     <div class="photo-slider" :style="heroParallaxStyle">
@@ -305,6 +306,10 @@ const heroParallaxStyle = computed(() => ({
     transform: `translate3d(${parallax.value.x}px, ${parallax.value.y}px, 0)`,
 }));
 
+const floatingBgStyle = computed(() => ({
+    transform: `translate3d(${parallax.value.x * -0.7}px, ${parallax.value.y * -0.7}px, 0)`,
+}));
+
 function setSlide(index) {
     activeSlide.value = index;
     restartAutoplay();
@@ -429,7 +434,7 @@ onBeforeUnmount(() => {
 .reveal {
     opacity: 0;
     transform: translateY(28px);
-    transition: opacity 0.75s ease, transform 0.75s ease;
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .reveal.is-visible {
@@ -442,9 +447,10 @@ onBeforeUnmount(() => {
     top: 0;
     z-index: 20;
     padding: 16px 0;
-    backdrop-filter: blur(16px);
-    background: rgba(255, 250, 252, 0.76);
+    backdrop-filter: blur(18px);
+    background: rgba(255, 250, 252, 0.68);
     border-bottom: 1px solid rgba(122, 31, 70, 0.08);
+    box-shadow: 0 8px 24px rgba(109, 31, 70, 0.04);
 }
 
 .header-row {
@@ -494,7 +500,7 @@ onBeforeUnmount(() => {
     padding: 10px 14px;
     border-radius: 999px;
     color: #74455e;
-    transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+    transition: transform 0.35s ease, background 0.35s ease, color 0.35s ease;
 }
 
 .nav a:hover,
@@ -506,8 +512,8 @@ onBeforeUnmount(() => {
 
 .hero {
     position: relative;
-    min-height: 760px;
-    padding: 46px 0 28px;
+    min-height: 610px;
+    padding: 32px 0 14px;
     display: flex;
     align-items: center;
 }
@@ -527,6 +533,7 @@ onBeforeUnmount(() => {
     inset: 0;
     pointer-events: none;
     overflow: hidden;
+    transition: transform 0.45s ease;
 }
 
 .floating-item {
@@ -540,13 +547,14 @@ onBeforeUnmount(() => {
     position: relative;
     z-index: 1;
     display: grid;
-    gap: 24px;
+    gap: 18px;
+    animation: heroFadeUp 0.8s ease both;
 }
 
 .hero-copy {
     display: grid;
-    gap: 14px;
-    max-width: 720px;
+    gap: 12px;
+    max-width: 580px;
 }
 
 .eyebrow {
@@ -564,29 +572,49 @@ onBeforeUnmount(() => {
 .hero-copy h1 {
     margin: 0;
     color: #6d1f46;
-    font-size: clamp(2.5rem, 4.6vw, 4.6rem);
-    line-height: 0.98;
+    font-size: clamp(2.1rem, 4vw, 3.8rem);
+    line-height: 1;
 }
 
 .hero-copy p {
     margin: 0;
-    max-width: 620px;
+    max-width: 520px;
     color: #7f5670;
-    font-size: 1.04rem;
-    line-height: 1.75;
+    font-size: 0.98rem;
+    line-height: 1.7;
+}
+
+.hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-height: 54px;
+    padding: 0 30px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6d1f46, #a53c73);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 16px 36px rgba(109, 31, 70, 0.18);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
+}
+
+.hero-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 42px rgba(109, 31, 70, 0.24);
 }
 
 .photo-slider {
     position: relative;
     width: 100%;
     max-width: 1120px;
-    height: 600px;
+    height: 500px;
     border-radius: 38px;
     overflow: hidden;
     border: 1px solid rgba(122, 31, 70, 0.1);
     background: #ffffff;
     box-shadow: 0 24px 64px rgba(109, 31, 70, 0.12);
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .photo-slide {
@@ -654,7 +682,7 @@ onBeforeUnmount(() => {
 .hero-slide-overlay {
     position: absolute;
     inset: auto 0 0 0;
-    padding: 26px 28px;
+    padding: 22px 24px;
     background: linear-gradient(180deg, transparent, rgba(58, 16, 35, 0.52));
 }
 
@@ -699,15 +727,15 @@ onBeforeUnmount(() => {
 }
 
 .alive-section {
-    padding: 18px 0 26px;
+    padding: 8px 0 24px;
 }
 
 .alive-card {
     display: grid;
     grid-template-columns: 40% 60%;
-    gap: 42px;
+    gap: 34px;
     align-items: center;
-    padding: 38px;
+    padding: 34px;
     border-radius: 32px;
     background: #ffffff;
     border: 1px solid rgba(215, 131, 180, 0.2);
@@ -796,7 +824,7 @@ onBeforeUnmount(() => {
     border: 1px solid rgba(165, 60, 115, 0.14);
     color: #6d1f46;
     font-weight: 600;
-    transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    transition: transform 0.35s ease, background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 
 .alive-btn:hover {
@@ -808,18 +836,21 @@ onBeforeUnmount(() => {
 
 .alive-gallery {
     display: grid;
-    gap: 18px;
+    gap: 24px;
     min-width: 0;
+    padding: 32px 36px;
 }
 
 .alive-main-photo-wrap {
     position: relative;
+    width: calc(100% - 32px);
+    margin: 0 auto;
 }
 
 .alive-photo-badge {
     position: absolute;
-    top: 18px;
-    left: 18px;
+    top: 24px;
+    left: 24px;
     z-index: 2;
     display: inline-flex;
     align-items: center;
@@ -835,11 +866,13 @@ onBeforeUnmount(() => {
 
 .alive-main-photo {
     overflow: hidden;
-    height: 336px;
-    border-radius: 28px;
-    background: #ffffff;
-    border: 1px solid rgba(215, 131, 180, 0.16);
-    box-shadow: 0 18px 42px rgba(109, 31, 70, 0.08);
+    height: 360px;
+    padding: 20px;
+    border-radius: 24px;
+    background:
+        linear-gradient(180deg, rgba(253, 245, 248, 0.9), rgba(255, 255, 255, 0.98));
+    border: 1px solid rgba(165, 60, 115, 0.08);
+    box-shadow: 0 20px 40px rgba(109, 31, 70, 0.08);
 }
 
 .alive-main-photo img,
@@ -908,14 +941,16 @@ onBeforeUnmount(() => {
 .alive-info-cards {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    gap: 16px;
+    width: calc(100% - 32px);
+    margin: 0 auto;
 }
 
 .alive-info-card {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 16px 14px;
+    padding: 18px 16px;
     border-radius: 22px;
     background: #ffffff;
     border: 1px solid rgba(215, 131, 180, 0.16);
@@ -1016,7 +1051,7 @@ onBeforeUnmount(() => {
 .footer-contact-link,
 .footer-bottom-links a {
     color: #7f5670;
-    transition: 0.3s;
+    transition: 0.35s;
 }
 
 .footer-links a:hover,
@@ -1055,7 +1090,18 @@ onBeforeUnmount(() => {
     background: #ffffff;
     border: 1px solid rgba(165, 60, 115, 0.12);
     color: #a53c73;
-    transition: 0.3s;
+    transition: 0.35s;
+}
+
+@keyframes heroFadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .social-icon svg {
@@ -1137,7 +1183,7 @@ onBeforeUnmount(() => {
     }
 
     .photo-slider {
-        height: 440px;
+        height: 400px;
         border-radius: 28px;
     }
 
@@ -1156,6 +1202,17 @@ onBeforeUnmount(() => {
 
     .alive-info-cards {
         grid-template-columns: 1fr;
+    }
+
+    .alive-gallery {
+        padding: 8px 0 0;
+        gap: 14px;
+    }
+
+    .alive-main-photo-wrap,
+    .alive-info-cards {
+        width: 100%;
+        margin: 0;
     }
 
     .header-phone {
