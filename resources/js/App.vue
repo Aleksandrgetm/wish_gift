@@ -13,6 +13,7 @@
                 <nav class="nav">
                     <a href="#top">Главная</a>
                     <a href="#home">Новинки</a>
+                    <a href="#alive">Оживайки</a>
                     <a href="#contacts">Контакты</a>
                 </nav>
 
@@ -44,23 +45,41 @@
                     </span>
                 </div>
 
-                <div class="container hero-content">
-                    <span class="eyebrow">Новинки и праздничные предложения</span>
+                <div class="container hero-shell">
+                    <div class="hero-copy">
+                        <span class="eyebrow">Новинки и праздничные предложения</span>
+                        <h1>Подарки, которые хочется дарить сразу</h1>
+                        <p>
+                            Большой акцент на реальных подарках, красивой упаковке и персональных деталях
+                            для тёплых поздравлений.
+                        </p>
+                    </div>
 
                     <div class="photo-slider" :style="heroParallaxStyle">
                         <div
                             v-for="(slide, index) in slides"
-                            :key="slide"
+                            :key="slide.src"
                             class="photo-slide"
                             :class="{ active: activeSlide === index }"
                         >
                             <img
                                 v-if="!failedSlides[index]"
-                                :src="slide"
-                                alt="wish gift slide"
+                                :src="slide.src"
+                                :alt="slide.alt"
                                 @error="markSlideError(index)"
                             />
-                            <div v-else class="slide-placeholder"></div>
+                            <div v-else class="slide-placeholder">
+                                <div class="slide-placeholder-card slide-placeholder-card-main"></div>
+                                <div class="slide-placeholder-card slide-placeholder-card-side"></div>
+                                <div class="slide-placeholder-ribbon"></div>
+                            </div>
+
+                            <div class="hero-slide-overlay">
+                                <div class="hero-slide-meta">
+                                    <span>{{ slide.kicker }}</span>
+                                    <strong>{{ slide.caption }}</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -78,6 +97,72 @@
                 </div>
             </section>
 
+            <section id="alive" class="alive-section reveal" data-reveal>
+                <div class="container">
+                    <div class="alive-card">
+                        <div class="alive-text">
+                            <span class="section-label">Новинка</span>
+                            <h2>Сувениры-оживайки</h2>
+                            <p>
+                                Персональные подарки, в которых фото и видео превращаются в тёплый
+                                интерактивный сюрприз. Такой формат хорошо подходит для семейных
+                                праздников, памятных дат и небольших особенных подарков.
+                            </p>
+                            <p>
+                                Вы отправляете материалы, а мы аккуратно встраиваем их в готовый
+                                продукт, чтобы подарок выглядел личным, современным и по-настоящему
+                                запоминающимся.
+                            </p>
+
+                            <ul class="alive-features">
+                                <li v-for="item in aliveFeatures" :key="item.title">
+                                    <span class="feature-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M20 7L10 17l-6-6"></path>
+                                        </svg>
+                                    </span>
+                                    <span>{{ item.title }}</span>
+                                </li>
+                            </ul>
+
+                            <a href="#contacts" class="alive-btn">Обсудить заказ</a>
+                        </div>
+
+                        <div class="alive-gallery">
+                            <div class="alive-main-photo-wrap">
+                                <div class="alive-photo-badge">QR + Фото + Видео</div>
+
+                                <div class="alive-main-photo">
+                                    <img
+                                        v-if="!failedAliveImages[0]"
+                                        :src="aliveImages[0].src"
+                                        :alt="aliveImages[0].alt"
+                                        @error="markAliveImageError(0)"
+                                    />
+                                    <div v-else class="alive-photo-placeholder alive-photo-placeholder-main">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"></path>
+                                            <path d="M8 14l2.5-2.5 2.5 2.5 3.5-3.5 3 3"></path>
+                                            <circle cx="9" cy="10" r="1.2"></circle>
+                                        </svg>
+                                        <span>Фото изделия</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alive-info-cards">
+                                <article v-for="card in aliveSteps" :key="card.title" class="alive-info-card">
+                                    <div class="alive-info-icon">{{ card.icon }}</div>
+                                    <div class="alive-info-copy">
+                                        <strong>{{ card.title }}</strong>
+                                        <span>{{ card.text }}</span>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer id="contacts" class="site-footer reveal" data-reveal>
@@ -98,7 +183,7 @@
                         <nav class="footer-links" aria-label="Footer navigation">
                             <a href="#top">Главная</a>
                             <a href="#home">Каталог</a>
-                            <a href="#home">Сувениры-оживайки</a>
+                            <a href="#alive">Сувениры-оживайки</a>
                             <a href="#contacts">О нас</a>
                             <a href="#contacts">Заказать</a>
                         </nav>
@@ -158,21 +243,58 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
-const slides = ['/images/slide-1.jpg', '/images/slide-2.jpg', '/images/slide-3.jpg'];
+const slides = [
+    {
+        src: '/images/slide-1.jpg',
+        alt: 'Праздничный сладкий подарок',
+        kicker: 'Подарочные наборы',
+        caption: 'Сладкие композиции для тёплых поздравлений',
+    },
+    {
+        src: '/images/slide-2.jpg',
+        alt: 'Персональный сувенир wish gift',
+        kicker: 'Индивидуальный заказ',
+        caption: 'Сувениры и подарки под ваше событие',
+    },
+    {
+        src: '/images/slide-3.jpg',
+        alt: 'Праздничная коробка с конфетами',
+        kicker: 'Нежная упаковка',
+        caption: 'Красивые детали и аккуратная подача',
+    },
+];
 
 const floatingItems = [
-    { emoji: '🍬', top: '9%', left: '6%', delay: '0s' },
-    { emoji: '🎁', top: '17%', left: '91%', delay: '0.8s' },
-    { emoji: '💝', top: '72%', left: '8%', delay: '1.4s' },
-    { emoji: '✨', top: '61%', left: '90%', delay: '0.5s' },
-    { emoji: '🍬', top: '35%', left: '3%', delay: '1.1s' },
-    { emoji: '✨', top: '42%', left: '95%', delay: '1.8s' },
+    { emoji: '🍬', top: '11%', left: '6%', delay: '0s' },
+    { emoji: '🎁', top: '16%', left: '92%', delay: '0.8s' },
+    { emoji: '💝', top: '76%', left: '7%', delay: '1.4s' },
+    { emoji: '✨', top: '63%', left: '91%', delay: '0.5s' },
+];
+
+const aliveFeatures = [
+    { title: 'Майка-оживайка' },
+    { title: 'Фото-оживайка' },
+    { title: 'Кружка' },
+    { title: 'Брелок' },
+    { title: 'Шоколад' },
+    { title: 'Трек-пластинка' },
+];
+
+const aliveSteps = [
+    { icon: '📷', title: 'Ваше фото', text: 'Отправляете фотографию' },
+    { icon: '🎥', title: 'Ваше видео', text: 'Отправляете короткое видео' },
+    { icon: '🎁', title: 'Готовый подарок', text: 'Получаете персональный сувенир' },
+];
+
+const aliveImages = [
+    { src: '/images/alive-1.jpg', alt: 'Сувенир-оживайка с фото' },
 ];
 
 const logoSrc = '/images/logo.png';
 
 const activeSlide = ref(0);
 const failedSlides = ref({});
+const failedAliveImages = ref({});
 const heroRef = ref(null);
 const parallax = ref({ x: 0, y: 0 });
 
@@ -209,6 +331,13 @@ function markSlideError(index) {
     };
 }
 
+function markAliveImageError(index) {
+    failedAliveImages.value = {
+        ...failedAliveImages.value,
+        [index]: true,
+    };
+}
+
 function onHeroMove(event) {
     const element = heroRef.value;
     if (!element) {
@@ -216,8 +345,8 @@ function onHeroMove(event) {
     }
 
     const rect = element.getBoundingClientRect();
-    const offsetX = ((event.clientX - rect.left) / rect.width - 0.5) * 12;
-    const offsetY = ((event.clientY - rect.top) / rect.height - 0.5) * 12;
+    const offsetX = ((event.clientX - rect.left) / rect.width - 0.5) * 10;
+    const offsetY = ((event.clientY - rect.top) / rect.height - 0.5) * 10;
 
     parallax.value = {
         x: offsetX,
@@ -273,9 +402,8 @@ onBeforeUnmount(() => {
     margin: 0;
     font-family: 'Instrument Sans', 'Segoe UI', sans-serif;
     background:
-        radial-gradient(circle at top left, rgba(233, 138, 172, 0.18), transparent 24%),
-        radial-gradient(circle at right top, rgba(182, 143, 217, 0.18), transparent 28%),
-        linear-gradient(180deg, #fff9f7 0%, #fff2f4 54%, #fff7f2 100%);
+        radial-gradient(circle at top left, rgba(233, 138, 172, 0.12), transparent 26%),
+        linear-gradient(180deg, #fffafc 0%, #fff4f6 52%, #fff8fb 100%);
     color: #4b233c;
 }
 
@@ -315,7 +443,7 @@ onBeforeUnmount(() => {
     z-index: 20;
     padding: 16px 0;
     backdrop-filter: blur(16px);
-    background: rgba(255, 248, 246, 0.72);
+    background: rgba(255, 250, 252, 0.76);
     border-bottom: 1px solid rgba(122, 31, 70, 0.08);
 }
 
@@ -371,15 +499,15 @@ onBeforeUnmount(() => {
 
 .nav a:hover,
 .header-phone:hover {
-    background: rgba(255, 255, 255, 0.78);
+    background: rgba(255, 255, 255, 0.84);
     color: #611635;
     transform: translateY(-1px);
 }
 
 .hero {
     position: relative;
-    min-height: 720px;
-    padding: 42px 0 24px;
+    min-height: 760px;
+    padding: 46px 0 28px;
     display: flex;
     align-items: center;
 }
@@ -387,13 +515,11 @@ onBeforeUnmount(() => {
 .hero::before {
     content: '';
     position: absolute;
-    inset: 26px 0 auto;
-    height: 620px;
-    background: linear-gradient(120deg, #7b173f, #b98bd8, #ee95b4, #f7d5d1);
-    background-size: 260% 260%;
-    animation: gradientShift 14s ease infinite;
-    opacity: 0.17;
-    filter: blur(12px);
+    inset: 0;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(215, 131, 180, 0.12), transparent 20%),
+        radial-gradient(circle at 85% 16%, rgba(165, 60, 115, 0.08), transparent 18%);
+    pointer-events: none;
 }
 
 .floating-bg {
@@ -405,47 +531,61 @@ onBeforeUnmount(() => {
 
 .floating-item {
     position: absolute;
-    font-size: clamp(1.35rem, 2vw, 2rem);
-    opacity: 0.18;
-    animation: floatItem 5.5s ease-in-out infinite;
-    filter: drop-shadow(0 10px 24px rgba(123, 23, 63, 0.08));
+    font-size: clamp(1.25rem, 2vw, 1.8rem);
+    opacity: 0.14;
+    animation: floatItem 6s ease-in-out infinite;
 }
 
-.hero-content {
+.hero-shell {
     position: relative;
     z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 22px;
-    width: 100%;
+    display: grid;
+    gap: 24px;
+}
+
+.hero-copy {
+    display: grid;
+    gap: 14px;
+    max-width: 720px;
 }
 
 .eyebrow {
     display: inline-flex;
+    width: fit-content;
     padding: 8px 14px;
     border-radius: 999px;
-    background: rgba(248, 232, 237, 0.95);
+    background: rgba(248, 237, 245, 0.92);
     color: #7b173f;
     font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 0.02em;
 }
 
-.photo-slider {
-    border: 1px solid rgba(122, 31, 70, 0.1);
-    background: rgba(255, 255, 255, 0.76);
-    box-shadow: 0 18px 45px rgba(123, 23, 63, 0.09);
-    backdrop-filter: blur(16px);
+.hero-copy h1 {
+    margin: 0;
+    color: #6d1f46;
+    font-size: clamp(2.5rem, 4.6vw, 4.6rem);
+    line-height: 0.98;
+}
+
+.hero-copy p {
+    margin: 0;
+    max-width: 620px;
+    color: #7f5670;
+    font-size: 1.04rem;
+    line-height: 1.75;
 }
 
 .photo-slider {
     position: relative;
     width: 100%;
     max-width: 1120px;
-    height: 560px;
-    border-radius: 36px;
+    height: 600px;
+    border-radius: 38px;
     overflow: hidden;
+    border: 1px solid rgba(122, 31, 70, 0.1);
+    background: #ffffff;
+    box-shadow: 0 24px 64px rgba(109, 31, 70, 0.12);
     transition: transform 0.3s ease;
 }
 
@@ -474,31 +614,66 @@ onBeforeUnmount(() => {
 .slide-placeholder {
     position: relative;
     background:
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.42), transparent 22%),
-        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.34), transparent 20%),
-        linear-gradient(135deg, #7b173f 0%, #b98bd8 52%, #ee95b4 100%);
+        linear-gradient(135deg, #fff7fa 0%, #f9eef5 54%, #f3d9e6 100%);
 }
 
-.slide-placeholder::before,
-.slide-placeholder::after {
-    content: '';
+.slide-placeholder-card {
     position: absolute;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(165, 60, 115, 0.12);
+    box-shadow: 0 18px 38px rgba(109, 31, 70, 0.08);
+}
+
+.slide-placeholder-card-main {
+    width: 38%;
+    height: 62%;
+    left: 11%;
+    top: 20%;
+    transform: rotate(-4deg);
+}
+
+.slide-placeholder-card-side {
+    width: 42%;
+    height: 70%;
+    right: 11%;
+    top: 14%;
+    transform: rotate(5deg);
+}
+
+.slide-placeholder-ribbon {
+    position: absolute;
+    width: 18%;
+    height: 18px;
+    left: 41%;
+    top: 48%;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(165, 60, 115, 0.16);
 }
 
-.slide-placeholder::before {
-    width: 240px;
-    height: 240px;
-    top: 12%;
-    right: 8%;
+.hero-slide-overlay {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 26px 28px;
+    background: linear-gradient(180deg, transparent, rgba(58, 16, 35, 0.52));
 }
 
-.slide-placeholder::after {
-    width: 320px;
-    height: 320px;
-    left: 7%;
-    bottom: -12%;
+.hero-slide-meta {
+    display: grid;
+    gap: 6px;
+    color: #ffffff;
+}
+
+.hero-slide-meta span {
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.86;
+}
+
+.hero-slide-meta strong {
+    font-size: 1.08rem;
+    font-weight: 600;
 }
 
 .slider-dots {
@@ -523,9 +698,261 @@ onBeforeUnmount(() => {
     background: #7b173f;
 }
 
+.alive-section {
+    padding: 18px 0 26px;
+}
+
+.alive-card {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    gap: 42px;
+    align-items: center;
+    padding: 38px;
+    border-radius: 32px;
+    background: #ffffff;
+    border: 1px solid rgba(215, 131, 180, 0.2);
+    box-shadow: 0 20px 60px rgba(109, 31, 70, 0.08);
+}
+
+.alive-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+}
+
+.section-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #f8edf5;
+    border: 1px solid rgba(165, 60, 115, 0.12);
+    color: #a53c73;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.alive-text h2 {
+    margin: 0;
+    color: #6d1f46;
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+    line-height: 1.08;
+}
+
+.alive-text p {
+    margin: 0;
+    max-width: 430px;
+    color: #7f5670;
+    line-height: 1.8;
+}
+
+.alive-features {
+    display: grid;
+    gap: 11px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.alive-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #6d1f46;
+}
+
+.feature-icon {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f8edf5;
+    flex-shrink: 0;
+}
+
+.feature-icon svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: #a53c73;
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.alive-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 20px;
+    border-radius: 999px;
+    background: #fdf5f8;
+    border: 1px solid rgba(165, 60, 115, 0.14);
+    color: #6d1f46;
+    font-weight: 600;
+    transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.alive-btn:hover {
+    transform: translateY(-2px);
+    background: #ffffff;
+    color: #a53c73;
+    border-color: rgba(165, 60, 115, 0.22);
+}
+
+.alive-gallery {
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+}
+
+.alive-main-photo-wrap {
+    position: relative;
+}
+
+.alive-photo-badge {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(165, 60, 115, 0.12);
+    color: #6d1f46;
+    font-size: 0.82rem;
+    font-weight: 700;
+    box-shadow: 0 12px 28px rgba(109, 31, 70, 0.1);
+}
+
+.alive-main-photo {
+    overflow: hidden;
+    height: 336px;
+    border-radius: 28px;
+    background: #ffffff;
+    border: 1px solid rgba(215, 131, 180, 0.16);
+    box-shadow: 0 18px 42px rgba(109, 31, 70, 0.08);
+}
+
+.alive-main-photo img,
+.alive-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.alive-photo-placeholder {
+    position: relative;
+    background: linear-gradient(145deg, #fffdfd, #f8edf5 58%, #f2d8e6 100%);
+}
+
+.alive-photo-placeholder-main {
+    display: grid;
+    place-items: center;
+    gap: 12px;
+    color: #8d5a76;
+    text-align: center;
+}
+
+.alive-photo-placeholder-main svg {
+    width: 42px;
+    height: 42px;
+    fill: none;
+    stroke: #a53c73;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.alive-photo-placeholder-main span {
+    position: relative;
+    z-index: 1;
+    font-weight: 600;
+}
+
+.alive-photo-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(165, 60, 115, 0.08);
+    background:
+        linear-gradient(180deg, rgba(165, 60, 115, 0.08), rgba(165, 60, 115, 0.02)),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.42));
+}
+
+.alive-photo-placeholder::after {
+    content: '';
+    position: absolute;
+    width: 34%;
+    height: 12px;
+    left: 16px;
+    bottom: 16px;
+    border-radius: 999px;
+    background: rgba(165, 60, 115, 0.08);
+}
+
+.alive-photo-placeholder-main::before {
+    inset: 20px;
+}
+
+.alive-info-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.alive-info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 14px;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid rgba(215, 131, 180, 0.16);
+    box-shadow: 0 14px 30px rgba(109, 31, 70, 0.05);
+}
+
+.alive-info-icon {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f8edf5;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.alive-info-copy {
+    display: grid;
+    gap: 4px;
+}
+
+.alive-info-copy strong {
+    color: #6d1f46;
+    font-size: 0.95rem;
+}
+
+.alive-info-copy span {
+    color: #7f5670;
+    font-size: 0.87rem;
+    line-height: 1.5;
+}
+
 .site-footer {
     width: 100%;
-    margin-top: 6px;
+    margin-top: 10px;
     padding: 80px 0 30px;
     background: linear-gradient(135deg, #fff8fb, #f8edf5);
     border-top: 1px solid rgba(165, 60, 115, 0.15);
@@ -665,18 +1092,6 @@ onBeforeUnmount(() => {
     flex-wrap: wrap;
 }
 
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
 @keyframes floatItem {
     0%,
     100% {
@@ -696,6 +1111,15 @@ onBeforeUnmount(() => {
         justify-content: flex-start;
     }
 
+    .alive-card {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .alive-gallery {
+        min-height: auto;
+    }
+
     .footer-grid {
         grid-template-columns: 1fr;
         gap: 36px;
@@ -705,12 +1129,33 @@ onBeforeUnmount(() => {
 @media (max-width: 720px) {
     .hero {
         min-height: auto;
-        padding-top: 26px;
+        padding-top: 28px;
+    }
+
+    .hero-copy {
+        gap: 12px;
     }
 
     .photo-slider {
-        height: 420px;
+        height: 440px;
+        border-radius: 28px;
+    }
+
+    .hero-slide-overlay {
+        padding: 18px 18px 20px;
+    }
+
+    .alive-card {
+        padding: 24px 22px;
         border-radius: 26px;
+    }
+
+    .alive-main-photo {
+        height: 280px;
+    }
+
+    .alive-info-cards {
+        grid-template-columns: 1fr;
     }
 
     .header-phone {
