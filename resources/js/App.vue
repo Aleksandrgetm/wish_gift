@@ -1,8 +1,8 @@
 <template>
     <div class="page-shell">
-        <header class="site-header reveal" data-reveal>
+        <header class="site-header">
             <div class="container header-row">
-                <a href="#top" class="brand logo">
+                <a href="/" class="brand logo" @click.prevent="goToPage('/')">
                     <img :src="logoSrc" alt="wish gift" class="logo-img" />
                     <span class="brand-copy">
                         wish_gift
@@ -10,160 +10,298 @@
                     </span>
                 </a>
 
-                <nav class="nav">
-                    <a href="#top">Главная</a>
-                    <a href="#home">Новинки</a>
-                    <a href="#alive">Оживайки</a>
-                    <a href="#contacts">Контакты</a>
+                <nav class="nav" aria-label="Основная навигация">
+                    <a
+                        v-for="item in navItems"
+                        :key="item.path"
+                        :href="item.path"
+                        class="nav-link"
+                        :class="{ active: isNavActive(item) }"
+                        @click.prevent="handleNavClick(item)"
+                    >
+                        {{ item.label }}
+                    </a>
                 </nav>
 
-                <a class="header-phone" href="tel:+37100000000">+371 00 000 000</a>
+                <div class="header-spacer" aria-hidden="true"></div>
             </div>
         </header>
 
-        <main id="top">
-            <section
-                id="home"
-                ref="heroRef"
-                class="hero reveal"
-                data-reveal
-                @mousemove="onHeroMove"
-                @mouseleave="resetHeroParallax"
-            >
-                <div class="floating-bg" :style="floatingBgStyle" aria-hidden="true">
-                    <span
-                        v-for="item in floatingItems"
-                        :key="item.emoji + item.top"
-                        class="floating-item"
-                        :style="{
-                            top: item.top,
-                            left: item.left,
-                            animationDelay: item.delay,
-                        }"
-                    >
-                        {{ item.emoji }}
-                    </span>
-                </div>
-
-                <div class="container hero-shell">
-                    <div class="hero-copy">
-                        <span class="eyebrow">Новинки и праздничные предложения</span>
-                        <h1>Подарки, которые хочется дарить сразу</h1>
-                        <p>
-                            Большой акцент на реальных подарках, красивой упаковке и персональных деталях
-                            для тёплых поздравлений.
-                        </p>
-                        <a href="#contacts" class="hero-cta">Заказать</a>
+        <main>
+            <template v-if="currentPage === 'home'">
+                <section
+                    id="top"
+                    ref="heroRef"
+                    class="hero reveal"
+                    data-reveal
+                    @mousemove="onHeroMove"
+                    @mouseleave="resetHeroParallax"
+                >
+                    <div class="floating-bg" :style="floatingBgStyle" aria-hidden="true">
+                        <span
+                            v-for="item in floatingItems"
+                            :key="item.emoji + item.top"
+                            class="floating-item"
+                            :style="{
+                                top: item.top,
+                                left: item.left,
+                                animationDelay: item.delay,
+                            }"
+                        >
+                            {{ item.emoji }}
+                        </span>
                     </div>
 
-                    <div class="photo-slider" :style="heroParallaxStyle">
-                        <div
-                            v-for="(slide, index) in slides"
-                            :key="slide.src"
-                            class="photo-slide"
-                            :class="{ active: activeSlide === index }"
-                        >
+                    <div class="container hero-layout">
+                        <div class="hero-copy">
+                            <span class="eyebrow">Подарки и праздничные новинки</span>
+                            <h1>Подарки, которые хочется дарить сразу</h1>
+                            <p>
+                                Собираем сладкие наборы, сувениры и персональные подарки с красивой
+                                подачей, чтобы каждый заказ выглядел тёплым, аккуратным и особенным.
+                            </p>
+
+                            <div class="hero-actions">
+                                <a href="/catalog" class="btn-primary" @click.prevent="goToPage('/catalog')">
+                                    Перейти в каталог
+                                </a>
+                                <a href="/alive" class="btn-secondary" @click.prevent="goToPage('/alive')">
+                                    Смотреть оживайки
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="hero-slider">
+                            <div class="slide-frame" :style="heroParallaxStyle">
+                                <div
+                                    v-for="(slide, index) in slides"
+                                    :key="slide.src"
+                                    class="slide"
+                                    :class="{ active: activeSlide === index }"
+                                >
+                                    <img
+                                        v-if="!failedSlides[index]"
+                                        :src="slide.src"
+                                        alt="Wish Gift"
+                                        @error="markSlideError(index)"
+                                    />
+                                    <div v-else class="slide-placeholder">
+                                        <div class="slide-placeholder-card slide-placeholder-card-main"></div>
+                                        <div class="slide-placeholder-card slide-placeholder-card-side"></div>
+                                        <div class="slide-placeholder-ribbon"></div>
+                                    </div>
+
+                                    <div class="hero-slide-overlay">
+                                        <div class="hero-slide-meta">
+                                            <span>{{ slide.kicker }}</span>
+                                            <strong>{{ slide.caption }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="slider-dots" aria-label="Переключение слайдов">
+                                <button
+                                    v-for="(_, index) in slides"
+                                    :key="index"
+                                    class="slider-dot"
+                                    :class="{ active: index === activeSlide }"
+                                    type="button"
+                                    :aria-label="`Слайд ${index + 1}`"
+                                    @click="setSlide(index)"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="new" class="section reveal" data-reveal>
+                    <div class="container">
+                        <div class="section-head">
+                            <div>
+                                <span class="section-label">Новинки</span>
+                                <h2>Актуальные подарки для праздников и тёплых поводов</h2>
+                            </div>
+                            <a href="/catalog" class="btn-primary section-link" @click.prevent="goToPage('/catalog')">
+                                Открыть каталог
+                            </a>
+                        </div>
+
+                        <div class="product-grid preview-grid">
+                            <article v-for="product in featuredProducts" :key="product.name" class="product-card">
+                                <div class="product-image">
+                                    <img :src="product.image" :alt="product.name" />
+                                </div>
+                                <div class="product-content">
+                                    <h3>{{ product.name }}</h3>
+                                    <p>{{ product.description }}</p>
+                                    <div class="product-meta">
+                                        <strong>{{ product.price }}</strong>
+                                        <button type="button" class="btn-primary product-btn" @click="scrollToContacts">
+                                            Заказать
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section feature-band reveal" data-reveal>
+                    <div class="container">
+                        <div class="section-head">
+                            <div>
+                                <span class="section-label">Почему выбирают нас</span>
+                                <h2>Подарки под событие, формат и настроение</h2>
+                            </div>
+                        </div>
+
+                        <div class="feature-grid">
+                            <article v-for="feature in homeFeatures" :key="feature.title" class="feature-card">
+                                <div class="feature-icon">{{ feature.icon }}</div>
+                                <h3>{{ feature.title }}</h3>
+                                <p>{{ feature.text }}</p>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+            </template>
+
+            <template v-else-if="currentPage === 'catalog'">
+                <section class="page-hero reveal" data-reveal>
+                    <div class="container page-hero-shell">
+                        <div class="page-copy">
+                            <span class="section-label">Каталог</span>
+                            <h1>Подберите подарок под любой повод</h1>
+                            <p>
+                                Сладкие наборы, сувениры и готовые подарочные решения в мягком,
+                                праздничном стиле. Все карточки можно использовать как основу для
+                                вашего ассортимента.
+                            </p>
+                        </div>
+
+                        <div class="page-hero-card">
+                            <strong>8 товаров-заглушек</strong>
+                            <span>Фотографии, описание, цена и кнопка заказа уже готовы.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section reveal" data-reveal>
+                    <div class="container">
+                        <div class="product-grid catalog-grid">
+                            <article v-for="product in catalogProducts" :key="product.name" class="product-card">
+                                <div class="product-image">
+                                    <img :src="product.image" :alt="product.name" />
+                                </div>
+                                <div class="product-content">
+                                    <h3>{{ product.name }}</h3>
+                                    <p>{{ product.description }}</p>
+                                    <div class="product-meta">
+                                        <strong>{{ product.price }}</strong>
+                                        <button type="button" class="btn-primary product-btn" @click="scrollToContacts">
+                                            Заказать
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+            </template>
+
+            <template v-else-if="currentPage === 'alive'">
+                <section class="page-hero reveal" data-reveal>
+                    <div class="container page-hero-shell alive-hero-shell">
+                        <div class="page-copy">
+                            <span class="section-label">Оживайки</span>
+                            <h1>Сувениры, в которые можно встроить ваши фото и видео</h1>
+                            <p>
+                                Клиент отправляет фотографию и короткое видео, а мы аккуратно
+                                встраиваем их в выбранный продукт, чтобы подарок стал по-настоящему
+                                личным и запоминающимся.
+                            </p>
+                        </div>
+
+                        <div class="alive-hero-visual">
+                            <div class="alive-hero-badge">QR + фото + видео</div>
                             <img
-                                v-if="!failedSlides[index]"
-                                :src="slide.src"
-                                :alt="slide.alt"
-                                @error="markSlideError(index)"
+                                v-if="!aliveHeroFailed"
+                                :src="aliveHeroSrc"
+                                alt="Wish Gift Alive"
+                                @error="markAliveHeroError"
                             />
                             <div v-else class="slide-placeholder">
                                 <div class="slide-placeholder-card slide-placeholder-card-main"></div>
                                 <div class="slide-placeholder-card slide-placeholder-card-side"></div>
                                 <div class="slide-placeholder-ribbon"></div>
                             </div>
-
-                            <div class="hero-slide-overlay">
-                                <div class="hero-slide-meta">
-                                    <span>{{ slide.kicker }}</span>
-                                    <strong>{{ slide.caption }}</strong>
-                                </div>
-                            </div>
                         </div>
                     </div>
+                </section>
 
-                    <div class="slider-dots" aria-label="Переключение слайдов">
-                        <button
-                            v-for="(_, index) in slides"
-                            :key="index"
-                            class="dot"
-                            :class="{ active: index === activeSlide }"
-                            type="button"
-                            :aria-label="`Слайд ${index + 1}`"
-                            @click="setSlide(index)"
-                        />
-                    </div>
-                </div>
-            </section>
-
-            <section id="alive" class="alive-section reveal" data-reveal>
-                <div class="container">
-                    <div class="alive-card">
-                        <div class="alive-text">
-                            <span class="section-label">Новинка</span>
-                            <h2>Сувениры-оживайки</h2>
-                            <p>
-                                Персональные подарки, в которых фото и видео превращаются в тёплый
-                                интерактивный сюрприз. Такой формат хорошо подходит для семейных
-                                праздников, памятных дат и небольших особенных подарков.
-                            </p>
-                            <p>
-                                Вы отправляете материалы, а мы аккуратно встраиваем их в готовый
-                                продукт, чтобы подарок выглядел личным, современным и по-настоящему
-                                запоминающимся.
-                            </p>
-
-                            <ul class="alive-features">
-                                <li v-for="item in aliveFeatures" :key="item.title">
-                                    <span class="feature-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24">
-                                            <path d="M20 7L10 17l-6-6"></path>
-                                        </svg>
-                                    </span>
-                                    <span>{{ item.title }}</span>
-                                </li>
-                            </ul>
-
-                            <a href="#contacts" class="alive-btn">Обсудить заказ</a>
+                <section class="section reveal" data-reveal>
+                    <div class="container">
+                        <div class="section-head">
+                            <div>
+                                <span class="section-label">Категории</span>
+                                <h2>Что можно оживить</h2>
+                            </div>
                         </div>
 
-                        <div class="alive-gallery">
-                            <div class="alive-main-photo-wrap">
-                                <div class="alive-photo-badge">QR + Фото + Видео</div>
+                        <div class="alive-categories">
+                            <article
+                                v-for="category in aliveCategories"
+                                :key="category.title"
+                                class="alive-category-card"
+                            >
+                                <div class="alive-category-icon">{{ category.icon }}</div>
+                                <h3>{{ category.title }}</h3>
+                                <p>{{ category.text }}</p>
+                            </article>
+                        </div>
+                    </div>
+                </section>
 
-                                <div class="alive-main-photo">
-                                    <img
-                                        v-if="!failedAliveImages[0]"
-                                        :src="aliveImages[0].src"
-                                        :alt="aliveImages[0].alt"
-                                        @error="markAliveImageError(0)"
-                                    />
-                                    <div v-else class="alive-photo-placeholder alive-photo-placeholder-main">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"></path>
-                                            <path d="M8 14l2.5-2.5 2.5 2.5 3.5-3.5 3 3"></path>
-                                            <circle cx="9" cy="10" r="1.2"></circle>
-                                        </svg>
-                                        <span>Фото изделия</span>
-                                    </div>
-                                </div>
+                <section class="section reveal" data-reveal>
+                    <div class="container">
+                        <div class="alive-layout">
+                            <div class="alive-copy-card">
+                                <span class="section-label">Как это работает</span>
+                                <h2>Простой процесс от идеи до готового подарка</h2>
+                                <p>
+                                    Мы помогаем пройти весь путь спокойно: от выбора основы до
+                                    финального макета и готового сувенира.
+                                </p>
                             </div>
 
-                            <div class="alive-info-cards">
-                                <article v-for="card in aliveSteps" :key="card.title" class="alive-info-card">
-                                    <div class="alive-info-icon">{{ card.icon }}</div>
-                                    <div class="alive-info-copy">
-                                        <h4>{{ card.title }}</h4>
-                                        <p>{{ card.text }}</p>
-                                    </div>
+                            <div class="alive-steps-grid">
+                                <article
+                                    v-for="step in aliveProcess"
+                                    :key="step.title"
+                                    class="alive-step-card"
+                                >
+                                    <span class="alive-step-number">{{ step.number }}</span>
+                                    <h3>{{ step.title }}</h3>
+                                    <p>{{ step.text }}</p>
                                 </article>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+
+                <section class="section reveal" data-reveal>
+                    <div class="container">
+                        <div class="feature-grid">
+                            <article v-for="card in aliveSteps" :key="card.title" class="feature-card">
+                                <div class="feature-icon">{{ card.icon }}</div>
+                                <h3>{{ card.title }}</h3>
+                                <p>{{ card.text }}</p>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+            </template>
         </main>
 
         <footer id="contacts" class="site-footer reveal" data-reveal>
@@ -175,18 +313,19 @@
                             <span class="footer-brand-name">wish_gift</span>
                         </div>
                         <p class="footer-description">
-                            Подарки из конфет, сувениры и персональные подарки для любого праздника.
+                            Подарки из конфет, сувениры и персональные решения для праздников,
+                            семейных событий и тёплых поздравлений.
                         </p>
                     </div>
 
                     <div class="footer-column">
                         <h3 class="footer-title">Навигация</h3>
                         <nav class="footer-links" aria-label="Footer navigation">
-                            <a href="#top">Главная</a>
-                            <a href="#home">Каталог</a>
-                            <a href="#alive">Сувениры-оживайки</a>
-                            <a href="#contacts">О нас</a>
-                            <a href="#contacts">Заказать</a>
+                            <a href="/" class="footer-link" @click.prevent="goToPage('/')">Главная</a>
+                            <a href="/catalog" class="footer-link" @click.prevent="goToPage('/catalog')">Каталог</a>
+                            <a href="/" class="footer-link" @click.prevent="scrollHomeToNew">Новинки</a>
+                            <a href="/alive" class="footer-link" @click.prevent="goToPage('/alive')">Оживайки</a>
+                            <a href="#contacts" class="footer-link" @click.prevent="scrollToContacts">Контакты</a>
                         </nav>
                     </div>
 
@@ -206,31 +345,11 @@
                                 <span>Латвия</span>
                             </div>
                         </div>
-
-                        <div class="footer-socials" aria-label="Social links">
-                            <a href="#" class="social-icon" aria-label="Instagram">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-                                    <circle cx="12" cy="12" r="4.2"></circle>
-                                    <circle cx="17.2" cy="6.8" r="1.2"></circle>
-                                </svg>
-                            </a>
-                            <a href="#" class="social-icon" aria-label="Facebook">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M13.4 21v-7.3h2.5l.4-3h-2.9V8.8c0-.9.2-1.5 1.5-1.5h1.6V4.6c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 4v2.2H8v3h2.4V21h3z"></path>
-                                </svg>
-                            </a>
-                            <a href="#" class="social-icon" aria-label="TikTok">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M14.7 3c.4 2 1.5 3.3 3.3 4.1v2.7c-1.3 0-2.5-.4-3.5-1.1v5.7c0 3-2.4 5.4-5.4 5.4s-5.1-2.4-5.1-5.4 2.4-5.2 5.1-5.2c.3 0 .7 0 1 .1v2.8a3 3 0 0 0-.9-.1c-1.4 0-2.5 1.1-2.5 2.5s1.1 2.6 2.5 2.6 2.6-1.1 2.6-2.6V3h2.9z"></path>
-                                </svg>
-                            </a>
-                        </div>
                     </div>
                 </div>
 
                 <div class="footer-bottom">
-                    <span>© 2025 wish_gift. Все права защищены.</span>
+                    <span>© 2026 wish_gift. Все права защищены.</span>
                     <div class="footer-bottom-links">
                         <a href="#">Политика конфиденциальности</a>
                         <a href="#">Условия использования</a>
@@ -242,27 +361,37 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+
+const logoSrc = '/images/logo.png';
+
+const navItems = [
+    { label: 'Главная', path: '/', page: 'home' },
+    { label: 'Каталог', path: '/catalog', page: 'catalog' },
+    { label: 'Новинки', path: '/', page: 'new', action: 'new' },
+    { label: 'Оживайки', path: '/alive', page: 'alive' },
+    { label: 'Контакты', path: '/', page: 'contacts', action: 'contacts' },
+];
+
+const galleryImagePaths = [
+    '/images/chocolate 1.jpeg',
+    '/images/chocolate 2.jpeg',
+    '/images/chocolate 3.jpeg',
+    '/images/chocolate 4.jpeg',
+    '/images/chocolate 5.jpeg',
+    '/images/chocolate 6.jpeg',
+    '/images/chocolate 7.jpeg',
+];
 
 const slides = [
-    {
-        src: '/images/slide-1.jpg',
-        alt: 'Праздничный сладкий подарок',
-        kicker: 'Подарочные наборы',
-        caption: 'Сладкие композиции для тёплых поздравлений',
-    },
-    {
-        src: '/images/slide-2.jpg',
-        alt: 'Персональный сувенир wish gift',
-        kicker: 'Индивидуальный заказ',
-        caption: 'Сувениры и подарки под ваше событие',
-    },
-    {
-        src: '/images/slide-3.jpg',
-        alt: 'Праздничная коробка с конфетами',
-        kicker: 'Нежная упаковка',
-        caption: 'Красивые детали и аккуратная подача',
-    },
+    ...galleryImagePaths.map((src, index) => ({
+        src,
+        kicker: index % 2 === 0 ? 'Подарочные наборы' : 'Wish Gift',
+        caption:
+            index % 2 === 0
+                ? 'Сладкие композиции для тёплых поздравлений'
+                : 'Реальные фотографии подарков и сувениров',
+    })),
 ];
 
 const floatingItems = [
@@ -272,30 +401,153 @@ const floatingItems = [
     { emoji: '✨', top: '63%', left: '91%', delay: '0.5s' },
 ];
 
-const aliveFeatures = [
-    { title: 'Майка-оживайка' },
-    { title: 'Фото-оживайка' },
-    { title: 'Кружка' },
-    { title: 'Брелок' },
-    { title: 'Шоколад' },
-    { title: 'Трек-пластинка' },
+const catalogProducts = [
+    {
+        name: 'Конфетный букет',
+        description: 'Нежная сладкая композиция для дня рождения, юбилея или небольшого сюрприза.',
+        price: 'от 29 €',
+        image: galleryImagePaths[0],
+    },
+    {
+        name: 'Подарочный бокс',
+        description: 'Коробка с конфетами, декором и персональной открыткой в праздничном стиле.',
+        price: 'от 34 €',
+        image: galleryImagePaths[1],
+    },
+    {
+        name: 'Сладкий набор Deluxe',
+        description: 'Более крупный формат с акцентом на подачу и красивую упаковку.',
+        price: 'от 46 €',
+        image: galleryImagePaths[2],
+    },
+    {
+        name: 'Именная кружка',
+        description: 'Персональный сувенир с именем, фото или коротким пожеланием.',
+        price: 'от 18 €',
+        image: galleryImagePaths[3],
+    },
+    {
+        name: 'Подарок для учителя',
+        description: 'Аккуратный тематический набор для школы, выпускного или благодарности.',
+        price: 'от 27 €',
+        image: galleryImagePaths[4],
+    },
+    {
+        name: 'Sweet Box Mini',
+        description: 'Компактный подарок для коллег, гостей или небольших поздравлений.',
+        price: 'от 16 €',
+        image: galleryImagePaths[5],
+    },
+    {
+        name: 'Romantic Box',
+        description: 'Нежный подарок с конфетами и декоративными акцентами для особенного дня.',
+        price: 'от 39 €',
+        image: galleryImagePaths[6],
+    },
+    {
+        name: 'Корпоративный подарок',
+        description: 'Универсальная заготовка для брендинга, упаковки и праздничных заказов.',
+        price: 'от 52 €',
+        image: galleryImagePaths[0],
+    },
+];
+
+const homeFeatures = [
+    {
+        icon: '🎀',
+        title: 'Аккуратная упаковка',
+        text: 'Собираем подарки так, чтобы они сразу выглядели готовыми к вручению.',
+    },
+    {
+        icon: '💌',
+        title: 'Персональный подход',
+        text: 'Добавляем имена, открытки и детали, которые делают подарок более личным.',
+    },
+    {
+        icon: '🌷',
+        title: 'Под любой повод',
+        text: 'Подбираем решения для праздников, семейных событий и небольших тёплых сюрпризов.',
+    },
+];
+
+const aliveHeroCandidates = ['/images/alive.jpg', '/images/alive-1.jpg', galleryImagePaths[0]];
+
+const aliveCategories = [
+    {
+        icon: '👕',
+        title: 'Майка-оживайка',
+        text: 'Футболка с персональной меткой, ведущей к вашему видео или истории.',
+    },
+    {
+        icon: '🖼️',
+        title: 'Фото-оживайка',
+        text: 'Фотография, открытка или рамка, которую можно дополнить цифровым сюрпризом.',
+    },
+    {
+        icon: '☕',
+        title: 'Оживи кружку',
+        text: 'Кружка с иллюстрацией или фото, которое дополняется вашим роликом.',
+    },
+    {
+        icon: '🔑',
+        title: 'Брелок',
+        text: 'Небольшой сувенир с персональной ссылкой на памятное видео.',
+    },
+    {
+        icon: '💌',
+        title: 'Открытка',
+        text: 'Поздравление, которое становится интерактивным и более запоминающимся.',
+    },
+    {
+        icon: '🍫',
+        title: 'Шоколад',
+        text: 'Сладкий подарок с личным посланием, фото и цифровым дополнением.',
+    },
+    {
+        icon: '🎵',
+        title: 'Трек-пластинка',
+        text: 'Декоративный подарок с любимой песней, историей и видео-посланием.',
+    },
+];
+
+const aliveProcess = [
+    {
+        number: '1',
+        title: 'Вы выбираете продукт',
+        text: 'Подбираете формат подарка, который лучше всего подходит под ваш повод.',
+    },
+    {
+        number: '2',
+        title: 'Отправляете фото и видео',
+        text: 'Передаёте материалы, которые хотите встроить в сувенир или упаковку.',
+    },
+    {
+        number: '3',
+        title: 'Мы создаём макет',
+        text: 'Готовим визуальное решение и собираем итоговый продукт в аккуратном стиле.',
+    },
+    {
+        number: '4',
+        title: 'Вы получаете готовый подарок',
+        text: 'На выходе получаете персональный сюрприз, который приятно дарить и хранить.',
+    },
 ];
 
 const aliveSteps = [
-    { icon: '📷', title: 'Ваше фото', text: 'Отправляете фотографию' },
-    { icon: '🎥', title: 'Ваше видео', text: 'Отправляете короткое видео' },
-    { icon: '🎁', title: 'Готовый подарок', text: 'Получаете персональный сувенир' },
+    { icon: '📷', title: 'Ваше фото', text: 'Отправляете фотографию, которую мы встраиваем в продукт.' },
+    { icon: '🎥', title: 'Ваше видео', text: 'Добавляете короткий ролик для более живого и личного сюрприза.' },
+    { icon: '🎁', title: 'Готовый подарок', text: 'Получаете современный персональный сувенир под ваш повод.' },
 ];
 
-const aliveImages = [
-    { src: '/images/alive-1.jpg', alt: 'Сувенир-оживайка с фото' },
-];
+const featuredProducts = computed(() => catalogProducts.slice(0, 4));
+const aliveHeroSrc = computed(() => aliveHeroCandidates[aliveHeroIndex.value] ?? galleryImagePaths[0]);
 
-const logoSrc = '/images/logo.png';
-
+const currentPage = ref(resolvePage(window.location.pathname));
+const activePage = ref(resolveActivePage(window.location.pathname));
 const activeSlide = ref(0);
 const failedSlides = ref({});
-const failedAliveImages = ref({});
+const aliveHeroIndex = ref(0);
+const aliveHeroFailed = ref(false);
 const heroRef = ref(null);
 const parallax = ref({ x: 0, y: 0 });
 
@@ -309,6 +561,94 @@ const heroParallaxStyle = computed(() => ({
 const floatingBgStyle = computed(() => ({
     transform: `translate3d(${parallax.value.x * -0.7}px, ${parallax.value.y * -0.7}px, 0)`,
 }));
+
+watch(currentPage, async (page) => {
+    document.title = pageTitles[page];
+    syncAutoplay();
+
+    await nextTick();
+    observeRevealElements();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+function resolvePage(pathname) {
+    if (pathname === '/catalog') {
+        return 'catalog';
+    }
+
+    if (pathname === '/alive') {
+        return 'alive';
+    }
+
+    return 'home';
+}
+
+function resolveActivePage(pathname) {
+    if (pathname === '/catalog') {
+        return 'catalog';
+    }
+
+    if (pathname === '/alive') {
+        return 'alive';
+    }
+
+    return 'home';
+}
+
+const pageTitles = {
+    home: 'wish_gift',
+    catalog: 'Каталог | wish_gift',
+    alive: 'Оживайки | wish_gift',
+};
+
+function isNavActive(item) {
+    return activePage.value === item.page;
+}
+
+function handleNavClick(item) {
+    if (item.action === 'new') {
+        scrollHomeToNew();
+        return;
+    }
+
+    if (item.action === 'contacts') {
+        scrollToContacts();
+        return;
+    }
+
+    goToPage(item.path);
+}
+
+function goToPage(path) {
+    const nextPage = resolvePage(path);
+    const nextActivePage = resolveActivePage(path);
+
+    if (window.location.pathname !== path) {
+        window.history.pushState({}, '', path);
+    }
+
+    currentPage.value = nextPage;
+    activePage.value = nextActivePage;
+}
+
+async function scrollHomeToNew() {
+    activePage.value = 'new';
+
+    if (currentPage.value !== 'home') {
+        goToPage('/');
+        await nextTick();
+        activePage.value = 'new';
+    }
+
+    window.requestAnimationFrame(() => {
+        document.getElementById('new')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+}
+
+function scrollToContacts() {
+    activePage.value = 'contacts';
+    document.getElementById('contacts')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 function setSlide(index) {
     activeSlide.value = index;
@@ -324,9 +664,26 @@ function restartAutoplay() {
         window.clearInterval(autoplayId);
     }
 
+    if (currentPage.value !== 'home') {
+        autoplayId = null;
+        return;
+    }
+
     autoplayId = window.setInterval(() => {
         nextSlide();
     }, 4000);
+}
+
+function syncAutoplay() {
+    if (currentPage.value === 'home') {
+        restartAutoplay();
+        return;
+    }
+
+    if (autoplayId) {
+        window.clearInterval(autoplayId);
+        autoplayId = null;
+    }
 }
 
 function markSlideError(index) {
@@ -336,14 +693,20 @@ function markSlideError(index) {
     };
 }
 
-function markAliveImageError(index) {
-    failedAliveImages.value = {
-        ...failedAliveImages.value,
-        [index]: true,
-    };
+function markAliveHeroError() {
+    if (aliveHeroIndex.value < aliveHeroCandidates.length - 1) {
+        aliveHeroIndex.value += 1;
+        return;
+    }
+
+    aliveHeroFailed.value = true;
 }
 
 function onHeroMove(event) {
+    if (currentPage.value !== 'home') {
+        return;
+    }
+
     const element = heroRef.value;
     if (!element) {
         return;
@@ -363,10 +726,8 @@ function resetHeroParallax() {
     parallax.value = { x: 0, y: 0 };
 }
 
-onMounted(() => {
-    restartAutoplay();
-
-    const items = document.querySelectorAll('[data-reveal]');
+function createObserver() {
+    observer?.disconnect();
     observer = new IntersectionObserver(
         (entries) => {
             entries.forEach((entry) => {
@@ -381,8 +742,34 @@ onMounted(() => {
             rootMargin: '0px 0px -40px 0px',
         }
     );
+}
 
-    items.forEach((item) => observer?.observe(item));
+function observeRevealElements() {
+    if (!observer) {
+        createObserver();
+    }
+
+    const items = document.querySelectorAll('[data-reveal]');
+    items.forEach((item) => {
+        item.classList.remove('is-visible');
+        observer?.observe(item);
+    });
+}
+
+function handlePopState() {
+    currentPage.value = resolvePage(window.location.pathname);
+    activePage.value = resolveActivePage(window.location.pathname);
+}
+
+onMounted(async () => {
+    document.title = pageTitles[currentPage.value];
+    createObserver();
+    syncAutoplay();
+
+    await nextTick();
+    observeRevealElements();
+
+    window.addEventListener('popstate', handlePopState);
 });
 
 onBeforeUnmount(() => {
@@ -391,6 +778,7 @@ onBeforeUnmount(() => {
     }
 
     observer?.disconnect();
+    window.removeEventListener('popstate', handlePopState);
 });
 </script>
 
@@ -419,6 +807,12 @@ onBeforeUnmount(() => {
 
 :global(button) {
     font: inherit;
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+    appearance: none;
 }
 
 .page-shell {
@@ -448,7 +842,7 @@ onBeforeUnmount(() => {
     z-index: 20;
     padding: 16px 0;
     backdrop-filter: blur(18px);
-    background: rgba(255, 250, 252, 0.68);
+    background: rgba(255, 250, 252, 0.72);
     border-bottom: 1px solid rgba(122, 31, 70, 0.08);
     box-shadow: 0 8px 24px rgba(109, 31, 70, 0.04);
 }
@@ -456,8 +850,8 @@ onBeforeUnmount(() => {
 .header-row {
     display: grid;
     grid-template-columns: auto 1fr auto;
-    gap: 20px;
     align-items: center;
+    gap: 24px;
 }
 
 .brand,
@@ -465,6 +859,11 @@ onBeforeUnmount(() => {
     display: inline-flex;
     align-items: center;
     gap: 12px;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
 }
 
 .logo-img {
@@ -492,40 +891,65 @@ onBeforeUnmount(() => {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 }
 
-.nav a,
-.header-phone {
+.header-spacer {
+    width: 120px;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px 14px;
     border-radius: 999px;
     color: #74455e;
-    transition: transform 0.35s ease, background 0.35s ease, color 0.35s ease;
+    transition: transform 0.35s ease, background 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
 }
 
-.nav a:hover,
-.header-phone:hover {
+.nav-link:hover,
+.nav-link.active {
     background: rgba(255, 255, 255, 0.84);
     color: #611635;
     transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(109, 31, 70, 0.08);
+}
+
+.hero,
+.page-hero {
+    position: relative;
 }
 
 .hero {
-    position: relative;
     min-height: 610px;
-    padding: 32px 0 14px;
+    padding: 36px 0 28px;
     display: flex;
     align-items: center;
 }
 
-.hero::before {
+.hero::before,
+.page-hero::before {
     content: '';
     position: absolute;
     inset: 0;
+    pointer-events: none;
+}
+
+.hero::before {
     background:
         radial-gradient(circle at 15% 20%, rgba(215, 131, 180, 0.12), transparent 20%),
         radial-gradient(circle at 85% 16%, rgba(165, 60, 115, 0.08), transparent 18%);
-    pointer-events: none;
+}
+
+.page-hero {
+    padding: 54px 0 12px;
+}
+
+.page-hero::before {
+    background:
+        radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.86), transparent 22%),
+        radial-gradient(circle at 88% 18%, rgba(233, 138, 172, 0.12), transparent 24%);
 }
 
 .floating-bg {
@@ -543,21 +967,24 @@ onBeforeUnmount(() => {
     animation: floatItem 6s ease-in-out infinite;
 }
 
-.hero-shell {
+.hero-layout,
+.page-hero-shell {
     position: relative;
     z-index: 1;
     display: grid;
-    gap: 18px;
-    animation: heroFadeUp 0.8s ease both;
+    grid-template-columns: 1fr 1fr;
+    gap: 72px;
+    align-items: center;
 }
 
-.hero-copy {
+.hero-copy,
+.page-copy {
     display: grid;
-    gap: 12px;
-    max-width: 580px;
+    gap: 14px;
 }
 
-.eyebrow {
+.eyebrow,
+.section-label {
     display: inline-flex;
     width: fit-content;
     padding: 8px 14px;
@@ -569,384 +996,361 @@ onBeforeUnmount(() => {
     letter-spacing: 0.02em;
 }
 
-.hero-copy h1 {
+.hero-copy h1,
+.page-copy h1 {
     margin: 0;
     color: #6d1f46;
-    font-size: clamp(2.1rem, 4vw, 3.8rem);
+    font-size: clamp(2.3rem, 4vw, 4rem);
     line-height: 1;
 }
 
-.hero-copy p {
+.hero-copy p,
+.page-copy p {
     margin: 0;
-    max-width: 520px;
+    max-width: 560px;
     color: #7f5670;
-    font-size: 0.98rem;
-    line-height: 1.7;
+    font-size: 1rem;
+    line-height: 1.75;
 }
 
-.hero-cta {
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.btn-primary,
+.btn-secondary,
+.product-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease, color 0.35s ease;
+}
+
+.btn-primary,
+.product-btn {
     width: fit-content;
     min-height: 54px;
-    padding: 0 30px;
+    padding: 0 28px;
     border-radius: 999px;
     background: linear-gradient(135deg, #6d1f46, #a53c73);
     color: #ffffff;
     font-weight: 700;
     box-shadow: 0 16px 36px rgba(109, 31, 70, 0.18);
-    transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
 }
 
-.hero-cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 42px rgba(109, 31, 70, 0.24);
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #6d1f46;
+    box-shadow: 0 12px 28px rgba(109, 31, 70, 0.08);
 }
 
-.photo-slider {
+.btn-primary:hover,
+.btn-secondary:hover,
+.product-btn:hover {
+    transform: translateY(-3px);
+}
+
+.section-link {
+    flex-shrink: 0;
+}
+
+.hero-slider {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.slide-frame {
     position: relative;
     width: 100%;
-    max-width: 1120px;
-    height: 500px;
-    border-radius: 38px;
+    height: 520px;
+    border-radius: 36px;
     overflow: hidden;
-    border: 1px solid rgba(122, 31, 70, 0.1);
-    background: #ffffff;
-    box-shadow: 0 24px 64px rgba(109, 31, 70, 0.12);
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    background: #f8edf5;
+    border: 1px solid rgba(215, 131, 180, 0.18);
+    box-shadow: 0 30px 80px rgba(109, 31, 70, 0.12);
+    transition: transform 0.45s ease;
 }
 
-.photo-slide {
+.slide {
     position: absolute;
     inset: 0;
     opacity: 0;
-    transform: scale(1.04);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    transform: scale(1.03);
+    transition: opacity 0.7s ease, transform 0.7s ease;
 }
 
-.photo-slide.active {
+.slide.active {
     opacity: 1;
     transform: scale(1);
-    z-index: 1;
+    z-index: 2;
 }
 
-.photo-slide img,
-.slide-placeholder {
+.slide img,
+.alive-hero-visual img,
+.product-image img {
     width: 100%;
     height: 100%;
     display: block;
     object-fit: cover;
+    object-position: center;
+    border-radius: 24px;
+    transition: transform 0.35s ease;
+}
+
+.slide:hover img,
+.alive-hero-visual:hover img,
+.product-card:hover .product-image img {
+    transform: scale(1.04);
 }
 
 .slide-placeholder {
     position: relative;
+    width: 100%;
+    height: 100%;
     background:
-        linear-gradient(135deg, #fff7fa 0%, #f9eef5 54%, #f3d9e6 100%);
+        linear-gradient(160deg, rgba(248, 237, 245, 0.95), rgba(255, 255, 255, 0.95)),
+        radial-gradient(circle at top, rgba(165, 60, 115, 0.08), transparent 45%);
 }
 
 .slide-placeholder-card {
     position: absolute;
     border-radius: 28px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(165, 60, 115, 0.12);
-    box-shadow: 0 18px 38px rgba(109, 31, 70, 0.08);
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 20px 40px rgba(109, 31, 70, 0.08);
 }
 
 .slide-placeholder-card-main {
-    width: 38%;
+    width: 54%;
     height: 62%;
-    left: 11%;
-    top: 20%;
-    transform: rotate(-4deg);
+    left: 15%;
+    top: 18%;
 }
 
 .slide-placeholder-card-side {
-    width: 42%;
-    height: 70%;
-    right: 11%;
-    top: 14%;
-    transform: rotate(5deg);
+    width: 30%;
+    height: 36%;
+    right: 12%;
+    bottom: 16%;
 }
 
 .slide-placeholder-ribbon {
     position: absolute;
-    width: 18%;
-    height: 18px;
-    left: 41%;
-    top: 48%;
-    border-radius: 999px;
-    background: rgba(165, 60, 115, 0.16);
+    width: 28%;
+    height: 28%;
+    right: 18%;
+    top: 14%;
+    border-radius: 50%;
+    border: 14px solid rgba(165, 60, 115, 0.12);
 }
 
 .hero-slide-overlay {
     position: absolute;
-    inset: auto 0 0 0;
-    padding: 22px 24px;
-    background: linear-gradient(180deg, transparent, rgba(58, 16, 35, 0.52));
+    inset: auto 20px 20px 20px;
+    padding: 18px 20px 20px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(75, 35, 60, 0.05), rgba(75, 35, 60, 0.34));
+    color: #ffffff;
 }
 
 .hero-slide-meta {
     display: grid;
-    gap: 6px;
-    color: #ffffff;
+    gap: 4px;
 }
 
 .hero-slide-meta span {
-    font-size: 0.82rem;
-    letter-spacing: 0.06em;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    opacity: 0.86;
+    letter-spacing: 0.08em;
+    opacity: 0.82;
 }
 
 .hero-slide-meta strong {
-    font-size: 1.08rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.35;
 }
 
 .slider-dots {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 10px;
+    margin-top: 24px;
 }
 
-.dot {
-    width: 12px;
-    height: 12px;
+.slider-dot {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    border: 0;
+    background: rgba(109, 31, 70, 0.2);
     cursor: pointer;
-    background: rgba(123, 23, 63, 0.2);
-    transition: width 0.25s ease, background 0.25s ease, transform 0.25s ease;
+    transition: all 0.3s ease;
 }
 
-.dot.active {
+.slider-dot.active {
     width: 34px;
     border-radius: 999px;
-    background: #7b173f;
+    background: #8b2456;
 }
 
-.alive-section {
-    padding: 8px 0 24px;
+.slider-dot:hover {
+    background: #a53c73;
 }
 
-.alive-card {
-    display: grid;
-    grid-template-columns: 40% 60%;
-    gap: 34px;
-    align-items: center;
-    padding: 34px;
-    border-radius: 32px;
-    background: #ffffff;
-    border: 1px solid rgba(215, 131, 180, 0.2);
-    box-shadow: 0 20px 60px rgba(109, 31, 70, 0.08);
+.section {
+    padding: 48px 0 30px;
 }
 
-.alive-text {
+.section-head {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: end;
+    justify-content: space-between;
     gap: 18px;
+    margin-bottom: 26px;
 }
 
-.section-label {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 12px;
-    border-radius: 999px;
-    background: #f8edf5;
-    border: 1px solid rgba(165, 60, 115, 0.12);
-    color: #a53c73;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.alive-text h2 {
-    margin: 0;
+.section-head h2,
+.alive-copy-card h2 {
+    margin: 10px 0 0;
     color: #6d1f46;
-    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+    font-size: clamp(1.9rem, 3vw, 2.8rem);
     line-height: 1.08;
 }
 
-.alive-text p {
-    margin: 0;
-    max-width: 430px;
-    color: #7f5670;
-    line-height: 1.8;
+.page-hero-card,
+.alive-copy-card {
+    padding: 28px;
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 237, 245, 0.9));
+    border: 1px solid rgba(215, 131, 180, 0.16);
+    box-shadow: 0 18px 40px rgba(109, 31, 70, 0.08);
 }
 
-.alive-features {
+.page-hero-card {
     display: grid;
-    gap: 11px;
-    padding: 0;
-    margin: 0;
-    list-style: none;
+    gap: 10px;
+    color: #7f5670;
 }
 
-.alive-features li {
+.page-hero-card strong {
+    color: #6d1f46;
+    font-size: 1.1rem;
+}
+
+.product-grid,
+.feature-grid,
+.alive-categories,
+.alive-steps-grid {
+    display: grid;
+    gap: 18px;
+}
+
+.preview-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.catalog-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.product-card,
+.feature-card,
+.alive-category-card,
+.alive-step-card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(215, 131, 180, 0.16);
+    box-shadow: 0 16px 34px rgba(109, 31, 70, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover,
+.feature-card:hover,
+.alive-category-card:hover,
+.alive-step-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 42px rgba(109, 31, 70, 0.1);
+}
+
+.product-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 24px;
+    padding: 20px;
+    gap: 18px;
+}
+
+.product-image {
+    height: 220px;
+    background: rgba(248, 237, 245, 0.8);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.product-content {
+    display: grid;
+    gap: 14px;
+    padding: 0;
+}
+
+.product-content h3,
+.feature-card h3,
+.alive-category-card h3,
+.alive-step-card h3 {
+    margin: 0;
+    color: #6d1f46;
+}
+
+.product-content p,
+.feature-card p,
+.alive-category-card p,
+.alive-step-card p,
+.alive-copy-card p {
+    margin: 0;
+    color: #7b6a76;
+    line-height: 1.7;
+}
+
+.product-meta {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
+}
+
+.product-meta strong {
     color: #6d1f46;
+    font-size: 1.05rem;
 }
 
-.feature-icon {
-    width: 26px;
-    height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #f8edf5;
-    flex-shrink: 0;
-}
-
-.feature-icon svg {
-    width: 14px;
-    height: 14px;
-    fill: none;
-    stroke: #a53c73;
-    stroke-width: 2.1;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.alive-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.product-btn {
     min-height: 46px;
     padding: 0 20px;
-    border-radius: 999px;
-    background: #fdf5f8;
-    border: 1px solid rgba(165, 60, 115, 0.14);
-    color: #6d1f46;
-    font-weight: 600;
-    transition: transform 0.35s ease, background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 
-.alive-btn:hover {
-    transform: translateY(-2px);
-    background: #ffffff;
-    color: #a53c73;
-    border-color: rgba(165, 60, 115, 0.22);
+.feature-band {
+    padding-top: 28px;
 }
 
-.alive-gallery {
-    display: grid;
-    gap: 24px;
-    min-width: 0;
-    padding: 32px 36px;
-}
-
-.alive-main-photo-wrap {
-    position: relative;
-    width: calc(100% - 32px);
-    margin: 0 auto;
-}
-
-.alive-photo-badge {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(165, 60, 115, 0.12);
-    color: #6d1f46;
-    font-size: 0.82rem;
-    font-weight: 700;
-    box-shadow: 0 12px 28px rgba(109, 31, 70, 0.1);
-}
-
-.alive-main-photo {
-    overflow: hidden;
-    height: 360px;
-    padding: 20px;
-    border-radius: 24px;
-    background:
-        linear-gradient(180deg, rgba(253, 245, 248, 0.9), rgba(255, 255, 255, 0.98));
-    border: 1px solid rgba(165, 60, 115, 0.08);
-    box-shadow: 0 20px 40px rgba(109, 31, 70, 0.08);
-}
-
-.alive-main-photo img,
-.alive-photo-placeholder {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-}
-
-.alive-photo-placeholder {
-    position: relative;
-    background: linear-gradient(145deg, #fffdfd, #f8edf5 58%, #f2d8e6 100%);
-}
-
-.alive-photo-placeholder-main {
-    display: grid;
-    place-items: center;
-    gap: 12px;
-    color: #8d5a76;
-    text-align: center;
-}
-
-.alive-photo-placeholder-main svg {
-    width: 42px;
-    height: 42px;
-    fill: none;
-    stroke: #a53c73;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.alive-photo-placeholder-main span {
-    position: relative;
-    z-index: 1;
-    font-weight: 600;
-}
-
-.alive-photo-placeholder::before {
-    content: '';
-    position: absolute;
-    inset: 16px;
-    border-radius: 20px;
-    border: 1px solid rgba(165, 60, 115, 0.08);
-    background:
-        linear-gradient(180deg, rgba(165, 60, 115, 0.08), rgba(165, 60, 115, 0.02)),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.42));
-}
-
-.alive-photo-placeholder::after {
-    content: '';
-    position: absolute;
-    width: 34%;
-    height: 12px;
-    left: 16px;
-    bottom: 16px;
-    border-radius: 999px;
-    background: rgba(165, 60, 115, 0.08);
-}
-
-.alive-photo-placeholder-main::before {
-    inset: 20px;
-}
-
-.alive-info-cards {
-    display: grid;
+.feature-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-    width: calc(100% - 32px);
-    margin: 0 auto;
 }
 
-.alive-info-card {
+.feature-card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -955,60 +1359,105 @@ onBeforeUnmount(() => {
     min-height: 180px;
     padding: 28px 24px;
     border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid rgba(215, 131, 180, 0.16);
-    box-shadow: 0 14px 30px rgba(109, 31, 70, 0.05);
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.alive-info-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(109, 31, 70, 0.1);
-}
-
-.alive-info-icon {
+.feature-icon,
+.alive-category-icon {
     width: 56px;
     height: 56px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 50%;
     background: #f8edf5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 24px;
-    flex-shrink: 0;
     box-shadow: 0 8px 20px rgba(109, 31, 70, 0.08);
     transition: transform 0.3s ease;
 }
 
-.alive-info-card:hover .alive-info-icon {
+.feature-card:hover .feature-icon,
+.alive-category-card:hover .alive-category-icon {
     transform: scale(1.08);
 }
 
-.alive-info-copy {
-    display: grid;
-    gap: 10px;
-    justify-items: center;
+.feature-card p {
+    max-width: 290px;
 }
 
-.alive-info-copy h4 {
-    margin: 0;
-    color: #6d1f46;
-    font-size: 20px;
+.alive-hero-shell {
+    align-items: stretch;
+}
+
+.alive-hero-visual {
+    position: relative;
+    min-height: 360px;
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid rgba(215, 131, 180, 0.16);
+    box-shadow: 0 24px 56px rgba(109, 31, 70, 0.1);
+}
+
+.alive-hero-badge {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 1;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #7b173f;
     font-weight: 700;
+    box-shadow: 0 12px 24px rgba(109, 31, 70, 0.1);
 }
 
-.alive-info-copy p {
-    margin: 0;
-    color: #7b6a76;
-    font-size: 0.95rem;
-    line-height: 1.6;
+.alive-categories {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.alive-category-card {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: 24px;
+    border-radius: 24px;
+}
+
+.alive-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.alive-steps-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.alive-step-card {
+    position: relative;
+    padding: 24px;
+    border-radius: 24px;
+}
+
+.alive-step-number {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6d1f46, #a53c73);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 10px 22px rgba(109, 31, 70, 0.18);
 }
 
 .site-footer {
     width: 100%;
-    margin-top: 10px;
-    padding: 80px 0 30px;
+    margin-top: 26px;
+    padding: 74px 0 30px;
     background: linear-gradient(135deg, #fff8fb, #f8edf5);
     border-top: 1px solid rgba(165, 60, 115, 0.15);
 }
@@ -1019,132 +1468,80 @@ onBeforeUnmount(() => {
 
 .footer-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 80px;
-}
-
-.footer-brand,
-.footer-column {
-    min-width: 0;
+    grid-template-columns: 1.1fr 0.9fr 0.9fr;
+    gap: 40px;
 }
 
 .footer-logo-line {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 .footer-logo-img {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     object-fit: contain;
-    border-radius: 16px;
 }
 
-.footer-brand-name {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #6d1f46;
+.footer-brand-name,
+.footer-title {
+    color: #621938;
 }
 
 .footer-description {
-    margin: 18px 0 0;
-    max-width: 320px;
+    max-width: 360px;
+    margin: 16px 0 0;
     color: #7f5670;
     line-height: 1.75;
 }
 
 .footer-title {
-    margin: 0 0 20px;
-    font-size: 1.08rem;
-    color: #6d1f46;
+    margin: 0 0 16px;
+    font-size: 1.05rem;
 }
 
 .footer-links,
 .footer-contacts {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 12px;
 }
 
-.footer-links a,
-.footer-contact-link,
-.footer-bottom-links a {
+.footer-link {
     color: #7f5670;
-    transition: 0.35s;
+    text-decoration: none;
+    transition: color 0.25s ease, transform 0.25s ease;
 }
 
-.footer-links a:hover,
-.footer-contact-link:hover,
-.footer-bottom-links a:hover {
-    color: #a53c73;
+.footer-link:hover {
+    color: #611635;
+    transform: translateX(2px);
 }
 
 .footer-contact-link {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-}
-
-.footer-contact-static {
-    cursor: default;
+    color: #7f5670;
 }
 
 .footer-contact-icon {
-    color: #a53c73;
-}
-
-.footer-socials {
-    display: flex;
-    gap: 12px;
-    margin-top: 22px;
-}
-
-.social-icon {
-    width: 42px;
-    height: 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid rgba(165, 60, 115, 0.12);
-    color: #a53c73;
-    transition: 0.35s;
-}
-
-@keyframes heroFadeUp {
-    0% {
-        opacity: 0;
-        transform: translateY(18px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.social-icon svg {
-    width: 18px;
-    height: 18px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.social-icon:hover {
-    background: #a53c73;
-    color: #ffffff;
-    transform: scale(1.06);
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .footer-bottom {
-    margin-top: 42px;
-    padding-top: 22px;
-    border-top: 1px solid rgba(165, 60, 115, 0.15);
+    margin-top: 34px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(165, 60, 115, 0.12);
     display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 18px;
     flex-wrap: wrap;
@@ -1168,27 +1565,39 @@ onBeforeUnmount(() => {
     }
 }
 
+@media (max-width: 1100px) {
+    .preview-grid,
+    .catalog-grid,
+    .alive-categories {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 980px) {
+    .header-row,
+    .hero-layout,
+    .page-hero-shell,
+    .alive-layout,
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+
     .header-row {
         grid-template-columns: 1fr;
+        justify-items: start;
     }
 
     .nav {
         justify-content: flex-start;
     }
 
-    .alive-card {
-        grid-template-columns: 1fr;
-        gap: 28px;
+    .header-spacer {
+        display: none;
     }
 
-    .alive-gallery {
-        min-height: auto;
-    }
-
-    .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 36px;
+    .feature-grid,
+    .alive-steps-grid {
+        grid-template-columns: 1fr 1fr;
     }
 }
 
@@ -1198,55 +1607,39 @@ onBeforeUnmount(() => {
         padding-top: 28px;
     }
 
-    .hero-copy {
-        gap: 12px;
-    }
-
-    .photo-slider {
+    .slide-frame {
         height: 400px;
         border-radius: 28px;
     }
 
-    .hero-slide-overlay {
-        padding: 18px 18px 20px;
+    .page-hero,
+    .section,
+    .site-footer {
+        padding-top: 28px;
     }
 
-    .alive-card {
-        padding: 24px 22px;
-        border-radius: 26px;
-    }
-
-    .alive-main-photo {
-        height: 280px;
-    }
-
-    .alive-info-cards {
+    .preview-grid,
+    .catalog-grid,
+    .feature-grid,
+    .alive-categories,
+    .alive-steps-grid {
         grid-template-columns: 1fr;
     }
 
-    .alive-gallery {
-        padding: 8px 0 0;
-        gap: 14px;
-    }
-
-    .alive-main-photo-wrap,
-    .alive-info-cards {
-        width: 100%;
-        margin: 0;
-    }
-
-    .header-phone {
-        justify-self: start;
-    }
-
-    .site-footer {
-        padding: 56px 0 26px;
-    }
-
+    .section-head,
+    .product-meta,
     .footer-bottom,
     .footer-bottom-links {
         flex-direction: column;
-        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .product-meta {
+        gap: 14px;
+    }
+
+    .alive-hero-visual {
+        min-height: 280px;
     }
 }
 </style>
