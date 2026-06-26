@@ -27,6 +27,19 @@
             </div>
         </header>
 
+        <div v-if="currentPage === 'home'" class="page-decor" aria-hidden="true">
+            <span
+                v-for="item in decorItems"
+                :key="item.id"
+                class="page-decor-item"
+                :style="decorItemStyle(item)"
+            >
+                <span class="page-decor-glyph" :class="item.animation">
+                    {{ item.emoji }}
+                </span>
+            </span>
+        </div>
+
         <main>
             <template v-if="currentPage === 'home'">
                 <section
@@ -401,6 +414,29 @@ const floatingItems = [
     { emoji: '✨', top: '63%', left: '91%', delay: '0.5s' },
 ];
 
+const decorItems = [
+    { id: 'd1', emoji: '🍬', top: '7%', left: '2.5%', size: 28, opacity: 0.14, color: '#d783b4', animation: 'float-y', speed: 0.08, delay: '0s' },
+    { id: 'd2', emoji: '✨', top: '10%', right: '4%', size: 20, opacity: 0.12, color: '#8b2456', animation: 'pulse', speed: 0.05, delay: '0.8s' },
+    { id: 'd3', emoji: '🎁', top: '15%', left: '10%', size: 34, opacity: 0.1, color: '#f2bfd7', animation: 'float-rotate', speed: 0.06, delay: '0.5s' },
+    { id: 'd4', emoji: '💝', top: '18%', right: '11%', size: 42, opacity: 0.12, color: '#d783b4', animation: 'float-y', speed: 0.07, delay: '1.2s' },
+    { id: 'd5', emoji: '🍬', top: '26%', left: '3%', size: 20, opacity: 0.11, color: '#8b2456', animation: 'pulse', speed: 0.04, delay: '1.1s' },
+    { id: 'd6', emoji: '✨', top: '31%', right: '3.5%', size: 28, opacity: 0.16, color: '#f2bfd7', animation: 'float-rotate', speed: 0.05, delay: '0.3s' },
+    { id: 'd7', emoji: '🎁', top: '39%', left: '7%', size: 34, opacity: 0.1, color: '#f8edf5', animation: 'float-y', speed: 0.08, delay: '1.6s' },
+    { id: 'd8', emoji: '💝', top: '43%', right: '8%', size: 28, opacity: 0.14, color: '#d783b4', animation: 'pulse', speed: 0.06, delay: '0.6s' },
+    { id: 'd9', emoji: '✨', top: '49%', left: '15%', size: 20, opacity: 0.1, color: '#8b2456', animation: 'float-y', speed: 0.05, delay: '1.9s' },
+    { id: 'd10', emoji: '🍬', top: '52%', right: '14%', size: 42, opacity: 0.09, color: '#f2bfd7', animation: 'float-rotate', speed: 0.07, delay: '0.7s' },
+    { id: 'd11', emoji: '🎁', top: '58%', left: '4%', size: 28, opacity: 0.13, color: '#d783b4', animation: 'float-y', speed: 0.08, delay: '1.4s' },
+    { id: 'd12', emoji: '💝', top: '61%', right: '4.5%', size: 34, opacity: 0.15, color: '#8b2456', animation: 'pulse', speed: 0.05, delay: '0.4s' },
+    { id: 'd13', emoji: '✨', top: '67%', left: '9%', size: 20, opacity: 0.08, color: '#f2bfd7', animation: 'float-rotate', speed: 0.06, delay: '1s' },
+    { id: 'd14', emoji: '🍬', top: '72%', right: '10%', size: 28, opacity: 0.13, color: '#d783b4', animation: 'float-y', speed: 0.07, delay: '1.5s' },
+    { id: 'd15', emoji: '🎁', top: '78%', left: '2%', size: 42, opacity: 0.1, color: '#f8edf5', animation: 'pulse', speed: 0.04, delay: '0.2s' },
+    { id: 'd16', emoji: '💝', top: '82%', right: '2.5%', size: 34, opacity: 0.12, color: '#d783b4', animation: 'float-rotate', speed: 0.06, delay: '0.9s' },
+    { id: 'd17', emoji: '✨', top: '87%', left: '12%', size: 20, opacity: 0.16, color: '#8b2456', animation: 'float-y', speed: 0.08, delay: '1.3s' },
+    { id: 'd18', emoji: '🍬', top: '90%', right: '16%', size: 28, opacity: 0.11, color: '#f2bfd7', animation: 'pulse', speed: 0.05, delay: '1.7s' },
+    { id: 'd19', emoji: '🎁', top: '93%', left: '5%', size: 34, opacity: 0.1, color: '#d783b4', animation: 'float-rotate', speed: 0.07, delay: '0.1s' },
+    { id: 'd20', emoji: '💝', top: '95%', right: '5%', size: 42, opacity: 0.12, color: '#8b2456', animation: 'float-y', speed: 0.06, delay: '1.8s' },
+];
+
 const catalogProducts = [
     {
         name: 'Конфетный букет',
@@ -548,6 +584,7 @@ const activeSlide = ref(0);
 const failedSlides = ref({});
 const aliveHeroIndex = ref(0);
 const aliveHeroFailed = ref(false);
+const decorScroll = ref(0);
 const heroRef = ref(null);
 const parallax = ref({ x: 0, y: 0 });
 
@@ -702,6 +739,23 @@ function markAliveHeroError() {
     aliveHeroFailed.value = true;
 }
 
+function decorItemStyle(item) {
+    return {
+        top: item.top,
+        left: item.left,
+        right: item.right,
+        '--decor-size': `${item.size}px`,
+        '--decor-opacity': item.opacity,
+        '--decor-color': item.color,
+        '--decor-delay': item.delay,
+        transform: `translate3d(0, ${decorScroll.value * item.speed}px, 0)`,
+    };
+}
+
+function handleDecorScroll() {
+    decorScroll.value = window.scrollY;
+}
+
 function onHeroMove(event) {
     if (currentPage.value !== 'home') {
         return;
@@ -765,11 +819,13 @@ onMounted(async () => {
     document.title = pageTitles[currentPage.value];
     createObserver();
     syncAutoplay();
+    handleDecorScroll();
 
     await nextTick();
     observeRevealElements();
 
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('scroll', handleDecorScroll, { passive: true });
 });
 
 onBeforeUnmount(() => {
@@ -779,6 +835,7 @@ onBeforeUnmount(() => {
 
     observer?.disconnect();
     window.removeEventListener('popstate', handlePopState);
+    window.removeEventListener('scroll', handleDecorScroll);
 });
 </script>
 
@@ -816,8 +873,52 @@ onBeforeUnmount(() => {
 }
 
 .page-shell {
+    position: relative;
     min-height: 100vh;
     overflow: hidden;
+}
+
+.page-decor {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.page-decor-item {
+    position: absolute;
+    will-change: transform;
+}
+
+.page-decor-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--decor-size);
+    line-height: 1;
+    opacity: var(--decor-opacity);
+    color: var(--decor-color);
+    filter: saturate(0.85);
+    animation-delay: var(--decor-delay);
+}
+
+.page-decor-glyph.float-y {
+    animation: floatY 8s ease-in-out infinite;
+}
+
+.page-decor-glyph.float-rotate {
+    animation: floatRotate 12s linear infinite;
+}
+
+.page-decor-glyph.pulse {
+    animation: pulse 6s ease infinite;
+}
+
+main,
+.site-footer {
+    position: relative;
+    z-index: 2;
 }
 
 .container {
@@ -1562,6 +1663,37 @@ onBeforeUnmount(() => {
     }
     50% {
         transform: translateY(-12px);
+    }
+}
+
+@keyframes floatY {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-18px);
+    }
+}
+
+@keyframes floatRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 0.08;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.18;
+        transform: scale(1.15);
     }
 }
 
