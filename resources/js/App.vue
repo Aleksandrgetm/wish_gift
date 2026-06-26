@@ -155,8 +155,8 @@
                                 <article v-for="card in aliveSteps" :key="card.title" class="alive-info-card">
                                     <div class="alive-info-icon">{{ card.icon }}</div>
                                     <div class="alive-info-copy">
-                                        <strong>{{ card.title }}</strong>
-                                        <span>{{ card.text }}</span>
+                                        <h4>{{ card.title }}</h4>
+                                        <p>{{ card.text }}</p>
                                     </div>
                                 </article>
                             </div>
@@ -948,41 +948,61 @@ onBeforeUnmount(() => {
 
 .alive-info-card {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 18px 16px;
-    border-radius: 22px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: 180px;
+    padding: 28px 24px;
+    border-radius: 20px;
     background: #ffffff;
     border: 1px solid rgba(215, 131, 180, 0.16);
     box-shadow: 0 14px 30px rgba(109, 31, 70, 0.05);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.alive-info-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(109, 31, 70, 0.1);
 }
 
 .alive-info-icon {
-    width: 38px;
-    height: 38px;
+    width: 56px;
+    height: 56px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     background: #f8edf5;
-    font-size: 1.05rem;
+    font-size: 24px;
     flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(109, 31, 70, 0.08);
+    transition: transform 0.3s ease;
+}
+
+.alive-info-card:hover .alive-info-icon {
+    transform: scale(1.08);
 }
 
 .alive-info-copy {
     display: grid;
-    gap: 4px;
+    gap: 10px;
+    justify-items: center;
 }
 
-.alive-info-copy strong {
+.alive-info-copy h4 {
+    margin: 0;
     color: #6d1f46;
-    font-size: 0.95rem;
+    font-size: 20px;
+    font-weight: 700;
 }
 
-.alive-info-copy span {
-    color: #7f5670;
-    font-size: 0.87rem;
-    line-height: 1.5;
+.alive-info-copy p {
+    margin: 0;
+    color: #7b6a76;
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
 .site-footer {
