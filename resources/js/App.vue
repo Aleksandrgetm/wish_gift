@@ -23,7 +23,18 @@
                     </a>
                 </nav>
 
-                <div class="header-spacer" aria-hidden="true"></div>
+                <div class="language-switcher" aria-label="Language switcher">
+                    <button
+                        v-for="lang in languages"
+                        :key="lang"
+                        type="button"
+                        class="lang-btn"
+                        :class="{ active: activeLang === lang }"
+                        @click="activeLang = lang"
+                    >
+                        {{ lang }}
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -376,6 +387,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 const logoSrc = '/images/logo.png';
+const languages = ['LV', 'RU', 'EN'];
 
 const navItems = [
     { label: 'Главная', path: '/', page: 'home' },
@@ -579,6 +591,7 @@ const aliveHeroSrc = computed(() => aliveHeroCandidates[aliveHeroIndex.value] ??
 
 const currentPage = ref(resolvePage(window.location.pathname));
 const activePage = ref(resolveActivePage(window.location.pathname));
+const activeLang = ref('RU');
 const activeSlide = ref(0);
 const failedSlides = ref({});
 const aliveHeroIndex = ref(0);
@@ -994,8 +1007,37 @@ main,
     gap: 10px;
 }
 
-.header-spacer {
-    width: 120px;
+.language-switcher {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 999px;
+    background: #f8edf5;
+    justify-self: end;
+}
+
+.lang-btn {
+    border: none;
+    background: transparent;
+    color: #7a2d52;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.lang-btn.active {
+    background: #ffffff;
+    color: #8b2456;
+    box-shadow: 0 8px 20px rgba(109, 31, 70, 0.1);
+}
+
+.lang-btn:hover {
+    color: #9d436f;
 }
 
 .nav-link {
@@ -1808,8 +1850,8 @@ main,
         justify-content: flex-start;
     }
 
-    .header-spacer {
-        display: none;
+    .language-switcher {
+        justify-self: start;
     }
 
     .feature-grid,
