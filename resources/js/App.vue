@@ -128,27 +128,26 @@
                     </div>
                 </section>
 
-                <section id="new" class="section reveal" data-reveal>
+                <section id="new" class="news-section reveal" data-reveal>
                     <div class="container">
-                        <div class="section-head">
-                            <div>
-                                <span class="section-label">Новинки</span>
-                                <h2>Актуальные подарки для праздников и тёплых поводов</h2>
-                            </div>
-                            <a href="/catalog" class="btn-primary section-link" @click.prevent="goToPage('/catalog')">
-                                Открыть каталог
-                            </a>
+                        <div class="news-header">
+                            <span class="section-label">Новинки</span>
+                            <h2>Актуальные подарки для праздников и тёплых поводов</h2>
+                            <p>
+                                Подборка сладких подарков и персональных сувениров, которые можно
+                                заказать для праздника или особенного события.
+                            </p>
                         </div>
 
-                        <div class="product-grid preview-grid">
-                            <article v-for="product in featuredProducts" :key="product.name" class="product-card">
-                                <div class="product-image">
+                        <div class="news-grid">
+                            <article v-for="product in featuredProducts" :key="product.name" class="product-card news-card">
+                                <div class="product-image news-image">
                                     <img :src="product.image" :alt="product.name" />
                                 </div>
-                                <div class="product-content">
+                                <div class="product-content news-info">
                                     <h3>{{ product.name }}</h3>
                                     <p>{{ product.description }}</p>
-                                    <div class="product-meta">
+                                    <div class="product-meta news-bottom">
                                         <strong>{{ product.price }}</strong>
                                         <button type="button" class="btn-primary product-btn" @click="scrollToContacts">
                                             Заказать
@@ -1130,7 +1129,7 @@ main,
     text-decoration: none;
     border: none;
     cursor: pointer;
-    transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease, color 0.35s ease;
+    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .btn-primary,
@@ -1139,10 +1138,10 @@ main,
     min-height: 54px;
     padding: 0 28px;
     border-radius: 999px;
-    background: linear-gradient(135deg, #6d1f46, #a53c73);
+    background: #b14f7e;
     color: #ffffff;
     font-weight: 700;
-    box-shadow: 0 16px 36px rgba(109, 31, 70, 0.18);
+    box-shadow: 0 10px 25px rgba(177, 79, 126, 0.18);
 }
 
 .btn-secondary {
@@ -1152,15 +1151,37 @@ main,
     min-height: 54px;
     padding: 0 24px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82);
-    color: #6d1f46;
-    box-shadow: 0 12px 28px rgba(109, 31, 70, 0.08);
+    background: #f7eef4;
+    color: #7a2d52;
+    box-shadow: 0 10px 25px rgba(177, 79, 126, 0.12);
 }
 
 .btn-primary:hover,
 .btn-secondary:hover,
 .product-btn:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
+}
+
+.btn-primary:hover,
+.product-btn:hover {
+    background: #9d436f;
+    box-shadow: 0 10px 25px rgba(177, 79, 126, 0.22);
+}
+
+.btn-primary:active,
+.product-btn:active {
+    background: #8c3b63;
+    transform: translateY(0);
+}
+
+.btn-secondary:hover {
+    background: #f1e4ec;
+    box-shadow: 0 10px 25px rgba(177, 79, 126, 0.14);
+}
+
+.btn-secondary:active {
+    background: #ead8e3;
+    transform: translateY(0);
 }
 
 .section-link {
@@ -1316,6 +1337,29 @@ main,
     padding: 48px 0 30px;
 }
 
+.news-section {
+    padding: 90px 0;
+}
+
+.news-header {
+    max-width: 760px;
+    margin-bottom: 36px;
+}
+
+.news-header h2 {
+    margin: 14px 0 0;
+    color: #6d1f46;
+    font-size: clamp(2rem, 3vw, 3rem);
+    line-height: 1.08;
+}
+
+.news-header p {
+    margin: 16px 0 0;
+    color: #7b6a76;
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
 .section-head {
     display: flex;
     align-items: end;
@@ -1360,12 +1404,14 @@ main,
     gap: 18px;
 }
 
-.preview-grid {
+.catalog-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.catalog-grid {
+.news-grid {
+    display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 28px;
 }
 
 .product-card,
@@ -1395,6 +1441,19 @@ main,
     gap: 18px;
 }
 
+.news-card {
+    min-height: 560px;
+    padding: 18px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 24px 70px rgba(109, 31, 70, 0.09);
+}
+
+.news-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 34px 90px rgba(109, 31, 70, 0.14);
+}
+
 .product-image {
     height: 220px;
     background: rgba(248, 237, 245, 0.8);
@@ -1402,10 +1461,23 @@ main,
     overflow: hidden;
 }
 
+.news-image {
+    height: 260px;
+    border-radius: 22px;
+    margin-bottom: 4px;
+}
+
 .product-content {
     display: grid;
     gap: 14px;
     padding: 0;
+}
+
+.news-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 12px;
 }
 
 .product-content h3,
@@ -1433,6 +1505,12 @@ main,
     gap: 12px;
 }
 
+.news-bottom {
+    margin-top: auto;
+    align-items: center;
+    gap: 16px;
+}
+
 .product-meta strong {
     color: #6d1f46;
     font-size: 1.05rem;
@@ -1441,6 +1519,13 @@ main,
 .product-btn {
     min-height: 46px;
     padding: 0 20px;
+}
+
+.news-card .product-btn {
+    min-height: 40px;
+    padding: 0 18px;
+    font-size: 0.92rem;
+    box-shadow: 0 10px 25px rgba(177, 79, 126, 0.18);
 }
 
 .feature-band {
@@ -1698,7 +1783,7 @@ main,
 }
 
 @media (max-width: 1100px) {
-    .preview-grid,
+    .news-grid,
     .catalog-grid,
     .alive-categories {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1746,11 +1831,12 @@ main,
 
     .page-hero,
     .section,
+    .news-section,
     .site-footer {
         padding-top: 28px;
     }
 
-    .preview-grid,
+    .news-grid,
     .catalog-grid,
     .feature-grid,
     .alive-categories,
