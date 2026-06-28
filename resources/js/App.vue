@@ -2215,7 +2215,6 @@ main,
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden;
     border-radius: 24px;
     padding: 20px;
     gap: 18px;
@@ -2305,8 +2304,13 @@ main,
 }
 
 .catalog-product-footer {
+    display: flex;
+    width: 100%;
+    min-width: 0;
     margin-top: auto;
-    align-items: flex-end;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
 
 .news-bottom {
@@ -2322,6 +2326,12 @@ main,
 }
 
 .catalog-price {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    min-width: 90px;
+    flex-shrink: 0;
+    white-space: nowrap;
     font-weight: 700;
 }
 
@@ -2331,12 +2341,22 @@ main,
 }
 
 .catalog-product-footer .product-btn {
-    width: 140px;
-    min-width: 140px;
+    min-width: 110px;
+    max-width: 135px;
+    height: 48px;
     min-height: 48px;
-    padding: 0 18px;
+    padding: 0 22px;
     border-radius: 999px;
-    flex: 0 0 140px;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1200px) {
+    .catalog-product-footer .product-btn {
+        max-width: 120px;
+        padding: 0 18px;
+    }
 }
 
 .news-card .product-btn {
