@@ -1847,8 +1847,9 @@ main {
 }
 
 .catalog-sidebar {
-    position: sticky;
-    top: 110px;
+    position: static;
+    top: auto;
+    align-self: start;
     display: grid;
     gap: 22px;
     padding: 24px;
