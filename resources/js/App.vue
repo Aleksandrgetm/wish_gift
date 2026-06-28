@@ -38,7 +38,7 @@
             </div>
         </header>
 
-        <div v-if="currentPage === 'home'" class="page-decor" aria-hidden="true">
+        <div v-if="currentPage === 'home' || currentPage === 'catalog'" class="page-decor" aria-hidden="true">
             <span
                 v-for="item in decorItems"
                 :key="item.id"
