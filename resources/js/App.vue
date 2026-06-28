@@ -213,7 +213,10 @@
 
                                 <div class="filter-group">
                                     <button type="button" class="filter-group-title" @click="toggleFilter('recipient')">
-                                        <span>Получатель подарка</span>
+                                        <span class="filter-group-heading">
+                                            <span class="filter-group-icon" aria-hidden="true">🎁</span>
+                                            <span>Получатель подарка</span>
+                                        </span>
                                         <span class="arrow" :class="{ open: openFilters.recipient }">⌄</span>
                                     </button>
                                     <div class="filter-panel" :class="{ open: openFilters.recipient }">
@@ -235,7 +238,10 @@
 
                                 <div class="filter-group">
                                     <button type="button" class="filter-group-title" @click="toggleFilter('holiday')">
-                                        <span>Праздники</span>
+                                        <span class="filter-group-heading">
+                                            <span class="filter-group-icon" aria-hidden="true">📅</span>
+                                            <span>Праздники</span>
+                                        </span>
                                         <span class="arrow" :class="{ open: openFilters.holiday }">⌄</span>
                                     </button>
                                     <div class="filter-panel" :class="{ open: openFilters.holiday }">
@@ -255,22 +261,120 @@
                                     </div>
                                 </div>
 
+                                <div class="filter-group">
+                                    <button type="button" class="filter-group-title" @click="toggleFilter('price')">
+                                        <span class="filter-group-heading">
+                                            <span class="filter-group-icon" aria-hidden="true">€</span>
+                                            <span>Цена</span>
+                                        </span>
+                                        <span class="arrow" :class="{ open: openFilters.price }">⌄</span>
+                                    </button>
+                                    <div class="filter-panel" :class="{ open: openFilters.price }">
+                                        <div class="filter-list">
+                                        <button
+                                            v-for="priceRange in priceRanges"
+                                            :key="priceRange"
+                                            type="button"
+                                            class="filter-item"
+                                            :class="{ active: selectedPriceRange === priceRange }"
+                                            @click="selectedPriceRange = priceRange"
+                                        >
+                                            <span class="filter-item-dot"></span>
+                                            <span>{{ priceRange }}</span>
+                                        </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="filter-group">
+                                    <button type="button" class="filter-group-title" @click="toggleFilter('type')">
+                                        <span class="filter-group-heading">
+                                            <span class="filter-group-icon" aria-hidden="true">🍫</span>
+                                            <span>Тип подарка</span>
+                                        </span>
+                                        <span class="arrow" :class="{ open: openFilters.type }">⌄</span>
+                                    </button>
+                                    <div class="filter-panel" :class="{ open: openFilters.type }">
+                                        <div class="filter-list">
+                                        <button
+                                            v-for="type in productTypes"
+                                            :key="type"
+                                            type="button"
+                                            class="filter-item"
+                                            :class="{ active: selectedType === type }"
+                                            @click="selectedType = type"
+                                        >
+                                            <span class="filter-item-dot"></span>
+                                            <span>{{ type }}</span>
+                                        </button>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <button type="button" class="btn-secondary filter-reset" @click="resetCatalogFilters">
                                     Сбросить фильтры
                                 </button>
                             </aside>
 
                             <div class="catalog-content">
-                                <div class="catalog-search">
-                                    <input
-                                        v-model="searchQuery"
-                                        type="text"
-                                        class="catalog-search-input"
-                                        placeholder="Поиск по названию или описанию"
-                                    />
+                                <div class="catalog-toolbar">
+                                    <div class="catalog-search-panel">
+                                        <div class="catalog-search">
+                                            <span class="catalog-search-icon" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none">
+                                                    <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8" />
+                                                    <path d="M16 16L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                                </svg>
+                                            </span>
+                                            <input
+                                                v-model="searchQuery"
+                                                type="text"
+                                                class="catalog-search-input"
+                                                placeholder="Найти подарок, праздник или получателя..."
+                                            />
+                                            <button
+                                                v-if="searchQuery"
+                                                type="button"
+                                                class="catalog-search-clear"
+                                                aria-label="Очистить поиск"
+                                                @click="clearCatalogSearch"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <label class="catalog-sort">
+                                        <span class="catalog-sort-label">Сортировка</span>
+                                        <select v-model="sortBy" class="catalog-sort-select">
+                                            <option value="default">По умолчанию</option>
+                                            <option value="az">От А до Я</option>
+                                            <option value="za">От Я до А</option>
+                                            <option value="cheap">Сначала дешевле</option>
+                                            <option value="expensive">Сначала дороже</option>
+                                        </select>
+                                    </label>
                                 </div>
 
-                                <div class="product-grid catalog-grid">
+                                <div v-if="activeCatalogChips.length" class="catalog-chips">
+                                    <button
+                                        v-for="chip in activeCatalogChips"
+                                        :key="chip.key"
+                                        type="button"
+                                        class="catalog-chip"
+                                        @click="clearCatalogChip(chip.key)"
+                                    >
+                                        <span>{{ chip.label }}</span>
+                                        <span class="catalog-chip-close" aria-hidden="true">×</span>
+                                    </button>
+                                </div>
+
+                                <div class="catalog-results-bar">
+                                    <p class="catalog-results-text">{{ catalogResultsLabel }}</p>
+                                    <span class="catalog-results-count">{{ filteredProducts.length }} товаров</span>
+                                </div>
+
+                                <div v-if="filteredProducts.length" class="product-grid catalog-grid">
                                     <article v-for="product in filteredProducts" :key="product.name" class="product-card">
                                         <div class="product-image">
                                             <img :src="product.image" :alt="product.name" />
@@ -281,6 +385,7 @@
                                             <div class="catalog-tags">
                                                 <span>{{ product.recipient }}</span>
                                                 <span>{{ product.holiday }}</span>
+                                                <span>{{ product.type }}</span>
                                             </div>
                                             <div class="product-meta">
                                                 <strong>{{ product.price }}</strong>
@@ -290,6 +395,11 @@
                                             </div>
                                         </div>
                                     </article>
+                                </div>
+
+                                <div v-else class="catalog-empty-state">
+                                    <strong>Ничего не найдено</strong>
+                                    <p>Попробуйте изменить запрос, цену или снять часть фильтров.</p>
                                 </div>
                             </div>
                         </div>
@@ -494,6 +604,9 @@ const holidays = [
     'День отца',
 ];
 
+const priceRanges = ['Все', 'До 20 €', '20–35 €', '35–50 €', 'От 50 €'];
+const productTypes = ['Все', 'Конфеты', 'Шоколад', 'Бокс', 'Сувенир', 'Оживайка', 'Индивидуальный заказ'];
+
 const slides = [
     ...galleryImagePaths.map((src, index) => ({
         src,
@@ -540,65 +653,81 @@ const catalogProducts = [
         name: 'Конфетный букет',
         description: 'Нежная сладкая композиция для дня рождения, юбилея или небольшого сюрприза.',
         price: 'от 29 €',
+        priceValue: 29,
         image: galleryImagePaths[0],
         recipient: 'Подарок женщине',
         holiday: '8 марта',
+        type: 'Конфеты',
     },
     {
         name: 'Подарочный бокс',
         description: 'Коробка с конфетами, декором и персональной открыткой в праздничном стиле.',
         price: 'от 34 €',
+        priceValue: 34,
         image: galleryImagePaths[1],
         recipient: 'Подарок мужчине',
         holiday: 'Подарки на Новый год',
+        type: 'Бокс',
     },
     {
         name: 'Сладкий набор Deluxe',
         description: 'Более крупный формат с акцентом на подачу и красивую упаковку.',
         price: 'от 46 €',
+        priceValue: 46,
         image: galleryImagePaths[2],
         recipient: 'Другие подарки',
         holiday: 'Рождество',
+        type: 'Шоколад',
     },
     {
         name: 'Именная кружка',
         description: 'Персональный сувенир с именем, фото или коротким пожеланием.',
         price: 'от 18 €',
+        priceValue: 18,
         image: galleryImagePaths[3],
         recipient: 'Подарок ребенку',
         holiday: 'День студента',
+        type: 'Сувенир',
     },
     {
         name: 'Подарок для учителя',
         description: 'Аккуратный тематический набор для школы, выпускного или благодарности.',
         price: 'от 27 €',
+        priceValue: 27,
         image: galleryImagePaths[4],
         recipient: 'Подарок учителям',
         holiday: 'День учителя',
+        type: 'Индивидуальный заказ',
     },
     {
         name: 'Sweet Box Mini',
         description: 'Компактный подарок для коллег, гостей или небольших поздравлений.',
         price: 'от 16 €',
+        priceValue: 16,
         image: galleryImagePaths[5],
         recipient: 'Подарок врачу',
         holiday: 'День матери',
+        type: 'Бокс',
     },
     {
         name: 'Romantic Box',
         description: 'Нежный подарок с конфетами и декоративными акцентами для особенного дня.',
         price: 'от 39 €',
+        priceValue: 39,
         image: galleryImagePaths[6],
         recipient: 'Подарок женщине',
         holiday: 'Подарки на 14 февраля',
+        type: 'Конфеты',
     },
     {
         name: 'Корпоративный подарок',
         description: 'Универсальная заготовка для брендинга, упаковки и праздничных заказов.',
         price: 'от 52 €',
+        priceValue: 52,
         image: galleryImagePaths[0],
         recipient: 'Другие подарки',
         holiday: 'День отца',
+        type: 'Индивидуальный заказ',
     },
 ];
 
@@ -692,13 +821,16 @@ const aliveSteps = [
 const featuredProducts = computed(() => catalogProducts.slice(0, 4));
 const aliveHeroSrc = computed(() => aliveHeroCandidates[aliveHeroIndex.value] ?? galleryImagePaths[0]);
 const filteredProducts = computed(() => {
-    return catalogProducts.filter((product) => {
+    const result = catalogProducts.filter((product) => {
         const search = searchQuery.value.toLowerCase().trim();
 
         const matchesSearch =
             !search ||
             product.name.toLowerCase().includes(search) ||
-            product.description.toLowerCase().includes(search);
+            product.description.toLowerCase().includes(search) ||
+            product.recipient.toLowerCase().includes(search) ||
+            product.holiday.toLowerCase().includes(search) ||
+            product.type.toLowerCase().includes(search);
 
         const matchesRecipient =
             selectedRecipient.value === 'Все' || product.recipient === selectedRecipient.value;
@@ -706,19 +838,90 @@ const filteredProducts = computed(() => {
         const matchesHoliday =
             selectedHoliday.value === 'Все' || product.holiday === selectedHoliday.value;
 
-        return matchesSearch && matchesRecipient && matchesHoliday;
+        const matchesType = selectedType.value === 'Все' || product.type === selectedType.value;
+
+        const matchesPrice =
+            selectedPriceRange.value === 'Все' ||
+            (selectedPriceRange.value === 'До 20 €' && product.priceValue < 20) ||
+            (selectedPriceRange.value === '20–35 €' && product.priceValue >= 20 && product.priceValue <= 35) ||
+            (selectedPriceRange.value === '35–50 €' && product.priceValue > 35 && product.priceValue <= 50) ||
+            (selectedPriceRange.value === 'От 50 €' && product.priceValue > 50);
+
+        return matchesSearch && matchesRecipient && matchesHoliday && matchesType && matchesPrice;
     });
+
+    if (sortBy.value === 'az') {
+        result.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    if (sortBy.value === 'za') {
+        result.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    if (sortBy.value === 'cheap') {
+        result.sort((a, b) => a.priceValue - b.priceValue);
+    }
+
+    if (sortBy.value === 'expensive') {
+        result.sort((a, b) => b.priceValue - a.priceValue);
+    }
+
+    return result;
 });
+
+const hasActiveCatalogFilters = computed(
+    () =>
+        Boolean(searchQuery.value.trim()) ||
+        selectedRecipient.value !== 'Все' ||
+        selectedHoliday.value !== 'Все' ||
+        selectedPriceRange.value !== 'Все' ||
+        selectedType.value !== 'Все',
+);
+
+const activeCatalogChips = computed(() => {
+    const chips = [];
+
+    if (searchQuery.value.trim()) {
+        chips.push({ key: 'search', label: `Поиск: ${searchQuery.value.trim()}` });
+    }
+
+    if (selectedRecipient.value !== 'Все') {
+        chips.push({ key: 'recipient', label: selectedRecipient.value });
+    }
+
+    if (selectedHoliday.value !== 'Все') {
+        chips.push({ key: 'holiday', label: selectedHoliday.value });
+    }
+
+    if (selectedPriceRange.value !== 'Все') {
+        chips.push({ key: 'price', label: selectedPriceRange.value });
+    }
+
+    if (selectedType.value !== 'Все') {
+        chips.push({ key: 'type', label: selectedType.value });
+    }
+
+    return chips;
+});
+
+const catalogResultsLabel = computed(() =>
+    hasActiveCatalogFilters.value ? `Найдено: ${filteredProducts.value.length} товаров` : 'Показаны все товары',
+);
 
 const currentPage = ref(resolvePage(window.location.pathname));
 const activePage = ref(resolveActivePage(window.location.pathname));
 const activeLang = ref('RU');
 const selectedRecipient = ref('Все');
 const selectedHoliday = ref('Все');
+const selectedPriceRange = ref('Все');
+const selectedType = ref('Все');
 const searchQuery = ref('');
+const sortBy = ref('default');
 const openFilters = ref({
     recipient: true,
     holiday: false,
+    price: false,
+    type: false,
 });
 const activeSlide = ref(0);
 const failedSlides = ref({});
@@ -831,6 +1034,39 @@ function resetCatalogFilters() {
     searchQuery.value = '';
     selectedRecipient.value = 'Все';
     selectedHoliday.value = 'Все';
+    selectedPriceRange.value = 'Все';
+    selectedType.value = 'Все';
+    sortBy.value = 'default';
+}
+
+function clearCatalogSearch() {
+    searchQuery.value = '';
+}
+
+function clearCatalogChip(key) {
+    if (key === 'search') {
+        clearCatalogSearch();
+        return;
+    }
+
+    if (key === 'recipient') {
+        selectedRecipient.value = 'Все';
+        return;
+    }
+
+    if (key === 'holiday') {
+        selectedHoliday.value = 'Все';
+        return;
+    }
+
+    if (key === 'price') {
+        selectedPriceRange.value = 'Все';
+        return;
+    }
+
+    if (key === 'type') {
+        selectedType.value = 'Все';
+    }
 }
 
 function toggleFilter(name) {
@@ -1604,10 +1840,179 @@ main,
 
 .catalog-content {
     min-width: 0;
+    display: grid;
+    gap: 18px;
+}
+
+.catalog-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 18px;
+    align-items: end;
+}
+
+.catalog-search-panel {
+    min-width: 0;
 }
 
 .catalog-search {
-    margin-bottom: 24px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.catalog-search-icon {
+    position: absolute;
+    left: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #9c4f76;
+    pointer-events: none;
+}
+
+.catalog-search-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.catalog-search-clear {
+    position: absolute;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(248, 237, 245, 0.96);
+    color: #8b2456;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.25s ease, color 0.25s ease;
+}
+
+.catalog-search-clear:hover {
+    background: #f2d6e6;
+    transform: scale(1.04);
+}
+
+.catalog-sort {
+    display: grid;
+    gap: 8px;
+}
+
+.catalog-sort-label {
+    color: #8d5471;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.catalog-sort-select {
+    width: 100%;
+    min-height: 58px;
+    padding: 0 18px;
+    border: 1px solid rgba(177, 79, 126, 0.18);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #5d3048;
+    font: inherit;
+    font-weight: 600;
+    outline: none;
+    box-shadow: 0 16px 34px rgba(109, 31, 70, 0.06);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    appearance: none;
+}
+
+.catalog-sort-select:focus {
+    border-color: rgba(177, 79, 126, 0.48);
+    box-shadow: 0 0 0 5px rgba(177, 79, 126, 0.1);
+}
+
+.catalog-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.catalog-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(177, 79, 126, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #7a2d52;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 12px 28px rgba(109, 31, 70, 0.05);
+    transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.catalog-chip:hover {
+    background: #f8edf5;
+    border-color: rgba(177, 79, 126, 0.28);
+    transform: translateY(-1px);
+}
+
+.catalog-chip-close {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.catalog-results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 2px;
+}
+
+.catalog-results-text {
+    margin: 0;
+    color: #6d1f46;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.catalog-results-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(248, 237, 245, 0.92);
+    color: #8b2456;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.catalog-empty-state {
+    display: grid;
+    gap: 10px;
+    padding: 28px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(215, 131, 180, 0.16);
+    box-shadow: 0 16px 34px rgba(109, 31, 70, 0.06);
+}
+
+.catalog-empty-state strong {
+    color: #6d1f46;
+    font-size: 1.1rem;
+}
+
+.catalog-empty-state p {
+    margin: 0;
+    color: #7f5670;
 }
 
 .catalog-grid {
@@ -1616,25 +2021,31 @@ main,
 
 .catalog-search-input {
     width: 100%;
-    min-height: 52px;
-    padding: 0 18px;
+    min-height: 60px;
+    padding: 0 58px 0 58px;
     border: 1px solid rgba(177, 79, 126, 0.18);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.92);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.96);
     color: #5d3048;
     font: inherit;
+    font-size: 1rem;
+    box-shadow: 0 16px 34px rgba(109, 31, 70, 0.06);
     outline: none;
-    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .catalog-search-input:focus {
-    border-color: rgba(177, 79, 126, 0.42);
-    box-shadow: 0 0 0 4px rgba(177, 79, 126, 0.08);
+    border-color: rgba(177, 79, 126, 0.52);
+    box-shadow: 0 0 0 5px rgba(177, 79, 126, 0.1), 0 20px 40px rgba(109, 31, 70, 0.08);
 }
 
 .filter-group {
     display: grid;
-    gap: 12px;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 22px;
+    background: rgba(252, 247, 250, 0.9);
+    border: 1px solid rgba(215, 131, 180, 0.12);
 }
 
 .filter-group-title {
@@ -1650,6 +2061,25 @@ main,
     font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
+}
+
+.filter-group-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 12px;
+    background: rgba(248, 237, 245, 0.96);
+    color: #8b2456;
+    font-size: 0.95rem;
+    box-shadow: inset 0 0 0 1px rgba(177, 79, 126, 0.08);
 }
 
 .filter-title,
@@ -1684,7 +2114,7 @@ main,
 .filter-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     padding-bottom: 6px;
 }
 
@@ -1717,8 +2147,9 @@ main,
 
 .filter-item:hover,
 .filter-item.active {
-    background: #f8edf5;
+    background: linear-gradient(180deg, rgba(248, 237, 245, 0.96), rgba(243, 224, 235, 0.94));
     color: #8b2456;
+    box-shadow: inset 0 0 0 1px rgba(177, 79, 126, 0.1);
 }
 
 .filter-item.active .filter-item-dot,
@@ -2153,6 +2584,10 @@ main,
         width: 100%;
     }
 
+    .catalog-toolbar {
+        grid-template-columns: 1fr;
+    }
+
     .header-row {
         grid-template-columns: 1fr;
         justify-items: start;
@@ -2200,6 +2635,7 @@ main,
 
     .section-head,
     .product-meta,
+    .catalog-results-bar,
     .footer-bottom,
     .footer-bottom-links {
         flex-direction: column;
@@ -2212,6 +2648,15 @@ main,
 
     .alive-hero-visual {
         min-height: 280px;
+    }
+
+    .catalog-search-input {
+        min-height: 58px;
+        padding-right: 54px;
+    }
+
+    .catalog-sort-select {
+        min-height: 56px;
     }
 }
 </style>
