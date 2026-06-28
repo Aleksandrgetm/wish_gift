@@ -192,7 +192,7 @@
 
             <template v-else-if="currentPage === 'catalog'">
                 <section class="page-hero reveal" data-reveal>
-                    <div class="container page-hero-shell">
+                    <div class="container page-hero-shell catalog-hero-shell">
                         <div class="page-copy">
                             <span class="section-label">Каталог</span>
                             <h1>Подберите подарок под любой повод</h1>
@@ -201,11 +201,6 @@
                                 праздничном стиле. Все карточки можно использовать как основу для
                                 вашего ассортимента.
                             </p>
-                        </div>
-
-                        <div class="page-hero-card">
-                            <strong>8 товаров-заглушек</strong>
-                            <span>Фотографии, описание, цена и кнопка заказа уже готовы.</span>
                         </div>
                     </div>
                 </section>
@@ -1268,6 +1263,11 @@ main,
     gap: 14px;
 }
 
+.catalog-hero-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+}
+
 .eyebrow,
 .section-label {
     display: inline-flex;
@@ -1561,24 +1561,12 @@ main,
     line-height: 1.08;
 }
 
-.page-hero-card,
 .alive-copy-card {
     padding: 28px;
     border-radius: 28px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 237, 245, 0.9));
     border: 1px solid rgba(215, 131, 180, 0.16);
     box-shadow: 0 18px 40px rgba(109, 31, 70, 0.08);
-}
-
-.page-hero-card {
-    display: grid;
-    gap: 10px;
-    color: #7f5670;
-}
-
-.page-hero-card strong {
-    color: #6d1f46;
-    font-size: 1.1rem;
 }
 
 .product-grid,
