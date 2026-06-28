@@ -1242,16 +1242,25 @@ onBeforeUnmount(() => {
 }
 
 :global(html) {
+    overflow: visible;
     scroll-behavior: smooth;
 }
 
 :global(body) {
     margin: 0;
+    overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
     font-family: 'Instrument Sans', 'Segoe UI', sans-serif;
     background:
         radial-gradient(circle at top left, rgba(233, 138, 172, 0.12), transparent 26%),
         linear-gradient(180deg, #fffafc 0%, #fff4f6 52%, #fff8fb 100%);
     color: #4b233c;
+}
+
+:global(#app) {
+    min-height: 100vh;
+    overflow: visible;
 }
 
 :global(a) {
@@ -1272,7 +1281,7 @@ onBeforeUnmount(() => {
 .page-shell {
     position: relative;
     min-height: 100vh;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .page-decor {
@@ -1318,6 +1327,11 @@ main,
     z-index: 2;
 }
 
+main {
+    min-height: 100vh;
+    overflow: visible;
+}
+
 .container {
     width: min(1120px, calc(100% - 32px));
     margin: 0 auto;
@@ -1337,11 +1351,12 @@ main,
 .site-header {
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: 1000;
     padding: 16px 0;
+    background: rgba(255, 248, 251, 0.88);
     backdrop-filter: blur(18px);
-    background: rgba(255, 250, 252, 0.72);
-    border-bottom: 1px solid rgba(122, 31, 70, 0.08);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(165, 60, 115, 0.12);
     box-shadow: 0 8px 24px rgba(109, 31, 70, 0.04);
 }
 
