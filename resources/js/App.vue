@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div class="page-shell">
         <header class="site-header">
             <div class="container header-row">
@@ -217,7 +217,11 @@
                                             <span class="filter-group-icon" aria-hidden="true">🎁</span>
                                             <span>Получатель подарка</span>
                                         </span>
-                                        <span class="arrow" :class="{ open: openFilters.recipient }">⌄</span>
+                                        <span class="arrow" :class="{ open: openFilters.recipient }" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
                                     </button>
                                     <div class="filter-panel" :class="{ open: openFilters.recipient }">
                                         <div class="filter-list">
@@ -242,7 +246,11 @@
                                             <span class="filter-group-icon" aria-hidden="true">📅</span>
                                             <span>Праздники</span>
                                         </span>
-                                        <span class="arrow" :class="{ open: openFilters.holiday }">⌄</span>
+                                        <span class="arrow" :class="{ open: openFilters.holiday }" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
                                     </button>
                                     <div class="filter-panel" :class="{ open: openFilters.holiday }">
                                         <div class="filter-list">
@@ -267,7 +275,11 @@
                                             <span class="filter-group-icon" aria-hidden="true">€</span>
                                             <span>Цена</span>
                                         </span>
-                                        <span class="arrow" :class="{ open: openFilters.price }">⌄</span>
+                                        <span class="arrow" :class="{ open: openFilters.price }" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
                                     </button>
                                     <div class="filter-panel" :class="{ open: openFilters.price }">
                                         <div class="filter-list">
@@ -292,7 +304,11 @@
                                             <span class="filter-group-icon" aria-hidden="true">🍫</span>
                                             <span>Тип подарка</span>
                                         </span>
-                                        <span class="arrow" :class="{ open: openFilters.type }">⌄</span>
+                                        <span class="arrow" :class="{ open: openFilters.type }" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
                                     </button>
                                     <div class="filter-panel" :class="{ open: openFilters.type }">
                                         <div class="filter-list">
@@ -375,20 +391,15 @@
                                 </div>
 
                                 <div v-if="filteredProducts.length" class="product-grid catalog-grid">
-                                    <article v-for="product in filteredProducts" :key="product.name" class="product-card">
+                                    <article v-for="product in filteredProducts" :key="product.name" class="product-card catalog-product-card">
                                         <div class="product-image">
                                             <img :src="product.image" :alt="product.name" />
                                         </div>
-                                        <div class="product-content">
+                                        <div class="product-content catalog-product-content">
                                             <h3>{{ product.name }}</h3>
-                                            <p>{{ product.description }}</p>
-                                            <div class="catalog-tags">
-                                                <span>{{ product.recipient }}</span>
-                                                <span>{{ product.holiday }}</span>
-                                                <span>{{ product.type }}</span>
-                                            </div>
-                                            <div class="product-meta">
-                                                <strong>{{ product.price }}</strong>
+                                            <p class="catalog-product-description">{{ product.description }}</p>
+                                            <div class="product-meta catalog-product-footer">
+                                                <strong class="catalog-price">ОТ {{ product.priceValue }} €</strong>
                                                 <button type="button" class="btn-primary product-btn" @click="scrollToContacts">
                                                     Заказать
                                                 </button>
@@ -2061,6 +2072,7 @@ main,
     font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
+    text-align: left;
 }
 
 .filter-group-heading {
@@ -2090,9 +2102,19 @@ main,
 }
 
 .arrow {
-    font-size: 1rem;
-    line-height: 1;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #7b2954;
     transition: transform 0.25s ease;
+}
+
+.arrow svg {
+    width: 20px;
+    height: 20px;
+    display: block;
 }
 
 .arrow.open {
@@ -2165,24 +2187,6 @@ main,
     justify-content: center;
 }
 
-.catalog-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.catalog-tags span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 30px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: #f8edf5;
-    color: #7a2d52;
-    font-size: 0.82rem;
-    font-weight: 600;
-}
-
 .news-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2210,6 +2214,7 @@ main,
 .product-card {
     display: flex;
     flex-direction: column;
+    height: 100%;
     overflow: hidden;
     border-radius: 24px;
     padding: 20px;
@@ -2248,6 +2253,25 @@ main,
     padding: 0;
 }
 
+.catalog-product-card {
+    min-height: 100%;
+}
+
+.catalog-product-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.catalog-product-description {
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 .news-info {
     display: flex;
     flex-direction: column;
@@ -2280,6 +2304,11 @@ main,
     gap: 12px;
 }
 
+.catalog-product-footer {
+    margin-top: auto;
+    align-items: flex-end;
+}
+
 .news-bottom {
     margin-top: auto;
     align-items: center;
@@ -2289,11 +2318,25 @@ main,
 .product-meta strong {
     color: #6d1f46;
     font-size: 1.05rem;
+    line-height: 1;
+}
+
+.catalog-price {
+    font-weight: 700;
 }
 
 .product-btn {
     min-height: 46px;
     padding: 0 20px;
+}
+
+.catalog-product-footer .product-btn {
+    width: 140px;
+    min-width: 140px;
+    min-height: 48px;
+    padding: 0 18px;
+    border-radius: 999px;
+    flex: 0 0 140px;
 }
 
 .news-card .product-btn {
